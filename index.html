@@ -1,256 +1,46 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Coral Cassette</title>
+/* =========================
+   CORAL GLOW PATCH (SAFE)
+   UI LAMA TETAP
+========================= */
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<style>
-/* ===============================
-   CORAL WAVE THEME
-================================ */
+/* palette (tidak overwrite warna lama) */
 :root{
-  --paper:#FCEDD8;
-  --ink:#2b0f16;
-
-  --coral-1:#FFD464;
-  --coral-2:#FF5E5E;
-  --coral-3:#E23C64;
-  --coral-4:#B0183D;
-
-  --glass:rgba(255,255,255,.45);
-  --glow:0 0 40px rgba(255,94,94,.45),
-         0 0 90px rgba(226,60,100,.35);
+  --coral-glow-1:#FF5E5E;
+  --coral-glow-2:#E23C64;
 }
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:
-    radial-gradient(circle at top,#FF9A7A,#E23C64 55%,#6b0f2e 100%);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-/* ===============================
-   PLAYER CARD
-================================ */
-.player{
-  width:360px;
-  padding:18px;
-  border-radius:30px;
-  background:
-    linear-gradient(180deg,
-      rgba(252,237,216,.95),
-      rgba(252,237,216,.88));
-  box-shadow:
-    0 40px 120px rgba(0,0,0,.45),
-    inset 0 0 0 1px rgba(255,255,255,.5);
-}
-
-/* ===============================
-   CASSETTE
-================================ */
+/* cassette glow idle */
 .cassette{
-  position:relative;
-  border-radius:26px;
-  padding:18px;
-  margin-bottom:14px;
-  background:
-    linear-gradient(160deg,
-      #FFE4B5,
-      #FFD464 45%,
-      #FF5E5E);
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.55),
-    inset 0 -8px 16px rgba(0,0,0,.18),
-    var(--glow);
-  overflow:hidden;
+    inset 0 0 0 1px rgba(255,255,255,.6),
+    inset 0 -6px 12px rgba(0,0,0,.08),
+    0 0 18px rgba(255,94,94,.25),
+    0 0 36px rgba(226,60,100,.18);
+  transition: box-shadow .4s ease;
 }
 
+/* cassette glow when playing */
 .cassette.playing{
-  animation:wobble 3.8s ease-in-out infinite;
-}
-
-@keyframes wobble{
-  0%,100%{transform:rotate(.15deg)}
-  50%{transform:rotate(-.15deg)}
-}
-
-/* grain */
-.cassette::after{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background-image:
-    repeating-radial-gradient(circle,
-      rgba(255,255,255,.12) 0,
-      rgba(255,255,255,.12) 1px,
-      transparent 1px,
-      transparent 3px);
-  opacity:.35;
-  animation:dust 26s linear infinite;
-  pointer-events:none;
-}
-@keyframes dust{
-  to{transform:translateY(180px)}
-}
-
-/* ===============================
-   WINDOW & REELS
-================================ */
-.window{
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.95),
-      rgba(255,255,255,.82));
-  border-radius:18px;
-  padding:16px;
   box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,.05);
+    inset 0 0 0 1px rgba(255,255,255,.65),
+    inset 0 -6px 14px rgba(0,0,0,.1),
+    0 0 26px rgba(255,94,94,.55),
+    0 0 60px rgba(226,60,100,.45),
+    0 0 110px rgba(226,60,100,.25);
 }
 
-.reels{
-  display:flex;
-  justify-content:space-between;
-}
-
+/* reel glow subtle */
 .reel{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  border:5px solid var(--coral-4);
   box-shadow:
-    inset 0 0 0 3px rgba(255,255,255,.6),
-    0 0 12px rgba(226,60,100,.45);
+    inset 0 0 0 2px rgba(255,255,255,.6),
+    0 0 8px rgba(226,60,100,.25);
 }
 
-.spin{
-  animation:spin 1.1s linear infinite;
+/* fix telegram flattening */
+body{
+  isolation:isolate;
 }
-@keyframes spin{
-  to{transform:rotate(360deg)}
+.player{
+  position:relative;
+  z-index:1;
 }
-
-/* ===============================
-   INPUT
-================================ */
-.input{
-  display:flex;
-  gap:8px;
-  margin:14px 0;
-}
-
-input{
-  flex:1;
-  padding:10px 12px;
-  border-radius:16px;
-  border:none;
-  background:rgba(255,255,255,.75);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
-}
-
-.input button{
-  background:var(--coral-3);
-  color:#fff;
-  border:none;
-  border-radius:999px;
-  width:38px;
-  font-size:18px;
-  cursor:pointer;
-  box-shadow:0 8px 20px rgba(226,60,100,.45);
-}
-
-/* ===============================
-   CONTROLS
-================================ */
-.controls{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.controls button{
-  background:
-    linear-gradient(180deg,#FF5E5E,#E23C64);
-  color:#fff;
-  border:none;
-  height:34px;
-  min-width:34px;
-  padding:0 10px;
-  border-radius:999px;
-  font-size:13px;
-  cursor:pointer;
-  box-shadow:
-    0 8px 18px rgba(226,60,100,.5);
-}
-
-.controls .play{
-  height:42px;
-  min-width:42px;
-  font-size:16px;
-}
-
-.controls .mute{
-  opacity:.75;
-}
-
-/* ===============================
-   PLAYLISTS
-================================ */
-.playlists{margin-top:4px}
-
-.folder{
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.95),
-      rgba(255,255,255,.85));
-  border-radius:18px;
-  padding:10px;
-  margin-bottom:10px;
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.18);
-}
-
-.folder-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  cursor:pointer;
-  color:var(--ink);
-}
-
-.folder-actions button{
-  background:none;
-  border:none;
-  cursor:pointer;
-  font-size:12px;
-  opacity:.6;
-}
-
-.songs{
-  margin-top:6px;
-  display:none;
-}
-
-.folder.open .songs{display:block}
-
-.song{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:6px 8px;
-  border-radius:10px;
-  font-size:12px;
-}
-
-.song:hover
