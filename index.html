@@ -52,26 +52,27 @@ body{
 }
 
 /* ===============================
-   CASSETTE + TUING ANIMATION
+   CASSETTE MOTION SYSTEM
 =============================== */
-@keyframes floatCassette{
-  0%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-7px) scale(1.015)}
-  100%{transform:translateY(0) scale(1)}
+
+/* idle: calm floating + sway */
+@keyframes idleFloat {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  50%  { transform: translateY(-6px) rotate(.15deg) scale(1.01); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
 }
 
-@keyframes bounceCassette{
-  0%{transform:translateY(0) scale(1)}
-  40%{transform:translateY(-12px) scale(1.02)}
-  70%{transform:translateY(-5px) scale(1.01)}
-  100%{transform:translateY(0) scale(1)}
+/* playing: rhythmic smooth bounce */
+@keyframes playBounce {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  30%  { transform: translateY(-10px) rotate(.2deg) scale(1.02); }
+  60%  { transform: translateY(-4px) rotate(-.15deg) scale(1.01); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
 }
 
-@keyframes wobble{
-  0%,100%{transform:rotate(.12deg)}
-  50%{transform:rotate(-.12deg)}
-}
-
+/* ===============================
+   CASSETTE BODY
+=============================== */
 .cassette{
   position:relative;
   background:linear-gradient(180deg,var(--ivory),var(--sand));
@@ -84,13 +85,14 @@ body{
     0 22px 55px rgba(242,134,149,.35);
   overflow:hidden;
 
-  animation:floatCassette 5.5s ease-in-out infinite;
+  /* IDLE MOTION */
+  animation: idleFloat 6s ease-in-out infinite;
+  transition: animation 600ms ease;
 }
 
+/* PLAYING MOTION */
 .cassette.playing{
-  animation:
-    bounceCassette 1.8s ease-in-out infinite,
-    wobble 4s ease-in-out infinite;
+  animation: playBounce 1.9s ease-in-out infinite;
 }
 
 /* glow */
@@ -108,7 +110,7 @@ body{
   pointer-events:none;
 }
 
-/* dust */
+/* dust grain */
 .cassette::after{
   content:"";
   position:absolute;
@@ -243,7 +245,7 @@ iframe{display:none}
 <iframe id="player" allow="autoplay"></iframe>
 
 <script>
-/* === JS ASLI, TIDAK DIUBAH === */
+/* === JS ASLI – TIDAK DIUBAH === */
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
 let current={p:0,s:0},isPlaying=false,muted=false,dragSong=null
 const cassette=document.getElementById("cassette")
