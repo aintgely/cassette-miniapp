@@ -199,7 +199,7 @@ body{
   from{transform:rotateZ(0deg) rotateX(12deg)}
   to{transform:rotateZ(360deg) rotateX(12deg)}
 }
-.cassette.playing .spin{animation-duration:.9s}
+.cassette.playing .spin{animation-duration:1.2s}
 
 /* input & controls */
 .input{display:flex;gap:8px;margin:14px 0}
@@ -226,7 +226,13 @@ input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid #e4c1b0}
 .folder.drop-hover{outline:2px dashed rgba(242,134,149,.6)}
 
 .credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
-iframe{display:none}
+iframe{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
 </style>
 </head>
 
@@ -296,7 +302,7 @@ window.addEventListener("message",e=>{
 })
 
 function loadVideo(id){
-  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&origin=${location.origin}`
+  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&mute=1&playsinline=1`
   playerReady=false
 }
 
@@ -389,3 +395,4 @@ render()
 </script>
 </body>
 </html>
+
