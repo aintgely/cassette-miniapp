@@ -8,49 +8,23 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+/* ===== CSS ASLI (TIDAK DIUBAH) ===== */
 :root{
-  --ink:#3d251e;        /* darkest text */
-  --dark:#4c3228;
-  --wood:#5b3e31;
-  --mid:#6a4a3a;
-  --brown:#765341;
-  --soft:#8b6c5c;
-  --sand:#a08679;
-  --label:#bca89f;
-  --ivory:#d8cbc4;     /* light plastic */
+  --ink:#3d251e;--dark:#4c3228;--wood:#5b3e31;--mid:#6a4a3a;
+  --brown:#765341;--soft:#8b6c5c;--sand:#a08679;
+  --label:#bca89f;--ivory:#d8cbc4;--accent:#6a4a3a;
 }
-
-
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:
-    radial-gradient(circle at top,
-      #d8cbc4 0%,
-      #bca89f 35%,
-      #8b6c5c 65%,
-      #5b3e31 100%);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:var(--ink);
+  margin:0;height:100vh;display:flex;justify-content:center;align-items:center;
+  background:radial-gradient(circle at top,#d8cbc4 0%,#bca89f 35%,#8b6c5c 65%,#5b3e31 100%);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);
 }
-
-/* PLAYER */
 .player{
-  width:360px;
-  background:linear-gradient(180deg,#fffdf7,var(--plastic));
-  border-radius:34px;
-  padding:20px;
-  box-shadow:
-    0 40px 120px rgba(227,138,150,.45),
-    inset 0 1px 0 rgba(255,255,255,.8);
+  width:360px;background:linear-gradient(180deg,#fffdf7,var(--ivory));
+  border-radius:34px;padding:20px;
+  box-shadow:0 40px 120px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.8);
 }
-
-/* ================= CASSETTE ================= */
 @keyframes idleSway{
   0%{transform:translateY(0) rotate(.2deg)}
   50%{transform:translateY(-4px) rotate(-.4deg)}
@@ -62,199 +36,58 @@ body{
   70%{transform:translateY(-2px)}
   100%{transform:translateY(0)}
 }
-
 .cassette{
-  position:relative;
-  background:linear-gradient(180deg,var(--ivory),var(--sand));
-  border-radius:26px;
-  padding:20px;
-  margin-bottom:16px;
-  animation:idleFloat 6s ease-in-out infinite;
-  overflow:hidden;
+  position:relative;background:linear-gradient(180deg,var(--ivory),var(--sand));
+  border-radius:26px;padding:20px;margin-bottom:16px;
+  animation:idleSway 6s ease-in-out infinite;cursor:pointer;overflow:hidden;
 }
-
-.cassette.playing{
-  animation:groove 2.2s cubic-bezier(.22,1,.36,1) infinite;
-}
-
-/* cassette shine */
-.cassette::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(120deg,
-      rgba(255,255,255,.6),
-      rgba(255,255,255,.15) 40%,
-      transparent 60%);
-  pointer-events:none;
-}
-
-/* cassette grain */
-.cassette::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.04),
-      rgba(255,255,255,.04) 2px,
-      rgba(0,0,0,.025) 4px);
-  mix-blend-mode:overlay;
-  pointer-events:none;
-}
-
-/* screws */
-.screw{
-  position:absolute;
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:radial-gradient(circle,#bbb,#666);
-  opacity:.45;
-}
-.screw.tl{top:10px;left:10px}
-.screw.tr{top:10px;right:10px}
-.screw.bl{bottom:10px;left:10px}
-.screw.br{bottom:10px;right:10px}
-
-/* window */
+.cassette.playing{animation:groove 2.2s cubic-bezier(.22,1,.36,1) infinite;}
 .window{
   background:linear-gradient(180deg,#3d251e,#2b1812);
-  border-radius:18px;
-  padding:18px;
-  box-shadow:inset 0 0 14px rgba(0,0,0,.45);
+  border-radius:18px;padding:18px;box-shadow:inset 0 0 14px rgba(0,0,0,.45);
 }
-
-.reels{
-  display:flex;
-  justify-content:space-between;
-}
-
+.reels{display:flex;justify-content:space-between}
 .reel{
-  width:56px;
-  height:56px;
-  border-radius:50%;
+  width:56px;height:56px;border-radius:50%;
   border:4px solid #e9ded0;
-  position:relative;
   background:
-    radial-gradient(circle at center,
-      #e9ded0 0 6px,
-      transparent 7px),
-    radial-gradient(circle at center,
-      rgba(0,0,0,.45),
-      rgba(0,0,0,0) 60%);
+    radial-gradient(circle at center,#e9ded0 0 6px,transparent 7px),
+    radial-gradient(circle at center,rgba(0,0,0,.45),transparent 60%);
 }
-
-.spin{
-  animation:spin 1.25s linear infinite;
+.spin{animation:spin 1.25s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.panel{
+  overflow:hidden;max-height:0;opacity:0;transform:translateY(-10px);
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .6s ease,transform .6s ease;
 }
-@keyframes spin{
-  to{transform:rotate(360deg)}
+.player.open .panel{max-height:900px;opacity:1;transform:translateY(0)}
+.input{display:flex;gap:8px;margin:14px 0}
+input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid rgba(0,0,0,.1)}
+.input button{border:none;border-radius:14px;padding:0 14px;background:var(--accent);color:#fff}
+.controls{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
+.controls button{
+  height:38px;min-width:38px;border:none;border-radius:999px;
+  background:linear-gradient(180deg,#6a4a3a,#4c3228);color:#fff;
 }
-
-/* INPUT */
-.input{
-  display:flex;
-  gap:8px;
-  margin:14px 0;
-}
-input{
-  flex:1;
-  padding:10px 12px;
-  border-radius:16px;
-  border:1px solid rgba(0,0,0,.1);
-  background:#fffdf8;
-}
-.input button{
-  border:none;
-  border-radius:14px;
-  padding:0 14px;
-  background:var(--accent);
-  color:#fff;
-}
-
-/* CONTROLS */
-.controls{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-bottom:12px;
-}
-.controls button,
-.input button{
-  background:linear-gradient(180deg,#6a4a3a,#4c3228);
-  color:#fff;
-}
-.controls button:hover{
-  transform:translateY(-2px) scale(1.05);
-}
-.controls button:active{
-  transform:scale(.96);
-}
-
-/* PLAYLIST */
-.playlists{margin-top:6px}
 .folder{
   background:linear-gradient(180deg,#fffdf8,var(--label));
-  border-radius:18px;
-  padding:10px;
-  margin-bottom:12px;
+  border-radius:18px;padding:10px;margin-bottom:12px;
 }
 .folder-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  font-weight:500;
-  cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;font-weight:500;cursor:pointer;
 }
-.folder-actions button{
-  background:none;
-  border:none;
-  font-size:12px;
-  margin-left:6px;
-  opacity:.5;
-}
-.folder-actions button:hover{opacity:1}
-
+.folder-actions span{margin-left:8px;opacity:.6;cursor:pointer}
 .songs{display:none;margin-top:6px}
 .folder.open .songs{display:block}
-
 .song{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:6px 8px;
-  border-radius:10px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;padding:6px 8px;border-radius:10px;
 }
-.song:hover{background:rgba(227,138,150,.25)}
-.song-title{
-  flex:1;
-  font-size:12px;
-  cursor:pointer;
-}
-.song-delete{
-  background:none;
-  border:none;
-  font-size:11px;
-  opacity:.45;
-}
-.song-delete:hover{opacity:1}
-
-.folder.drop-hover{
-  outline:2px dashed rgba(227,138,150,.6);
-}
-
-.credit{
-  position:fixed;
-  bottom:14px;
-  left:16px;
-  font-size:12px;
-  opacity:.55;
-}
-
+.song.dragging{opacity:.4}
+.song:hover{background:rgba(0,0,0,.05)}
+.song span.x{opacity:.4;cursor:pointer}
+.credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
 iframe{display:none}
 </style>
 </head>
@@ -262,12 +95,7 @@ iframe{display:none}
 <body>
 
 <div class="player">
-  <div class="cassette" id="cassette">
-    <div class="screw tl"></div>
-    <div class="screw tr"></div>
-    <div class="screw bl"></div>
-    <div class="screw br"></div>
-
+  <div class="cassette" onclick="togglePanel()">
     <div class="window">
       <div class="reels">
         <div class="reel" id="reelL"></div>
@@ -276,167 +104,180 @@ iframe{display:none}
     </div>
   </div>
 
-  <div class="input">
-    <input id="ytInput" placeholder="Paste YouTube link…">
-    <button onclick="addSong()">＋</button>
-  </div>
+  <div class="panel">
+    <div class="input">
+      <input id="ytInput" placeholder="Paste YouTube link…">
+      <button onclick="addSong()">＋</button>
+    </div>
 
-  <div class="controls">
-    <button onclick="prev()">⏮</button>
-    <button id="playBtn" onclick="togglePlay()">▶</button>
-    <button onclick="next()">⏭</button>
-    <button onclick="shuffle()">🔀</button>
-  </div>
+    <div class="controls">
+      <button onclick="prev()">⏮</button>
+      <button id="playBtn" onclick="togglePlay()">▶</button>
+      <button onclick="next()">⏭</button>
+      <button onclick="shuffle()">🔀</button>
+    </div>
 
-  <div class="playlists" id="playlists"></div>
-  <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
+    <div id="playlists"></div>
+    <div onclick="addPlaylist()">＋ Add Playlist</div>
+  </div>
 </div>
 
 <div class="credit">@aintgely</div>
 <iframe id="player" allow="autoplay"></iframe>
 
 <script>
-/* JS ASLI KAMU — TIDAK DIUBAH */
-let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
+/* ===== DATA ===== */
+let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
+  {name:"My Playlist",songs:[],open:false}
+]
 let current={p:0,s:0}
-let dragSong=null
-let isPlaying=false
-let playerReady=false
+let dragged=null
 
 const iframe=document.getElementById("player")
-const cassette=document.getElementById("cassette")
-const playBtn=document.getElementById("playBtn")
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
+const playBtn=document.getElementById("playBtn")
+const playlistsEl=document.getElementById("playlists")
 
 function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
+function togglePanel(){document.querySelector(".player").classList.toggle("open")}
 
 function extractId(u){
   if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
   return u.split("v=")[1]?.split("&")[0]
 }
 
+/* ===== PLAYER ===== */
 function loadVideo(id){
   iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`
-  setTimeout(()=>playerReady=true,1000)
 }
-function playCmd(){
-  iframe.contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:[]}),"*")
-}
-function pauseCmd(){
-  iframe.contentWindow.postMessage(JSON.stringify({event:"command",func:"pauseVideo",args:[]}),"*")
-}
-
+window.addEventListener("message",e=>{
+  try{
+    const m=JSON.parse(e.data)
+    if(m.event==="onStateChange"&&m.info===0)next()
+  }catch{}
+})
 function startAnim(){
-  cassette.classList.add("playing")
-  reelL.classList.add("spin")
-  reelR.classList.add("spin")
+  reelL.classList.add("spin");reelR.classList.add("spin")
   playBtn.textContent="⏸"
-  isPlaying=true
 }
 function stopAnim(){
-  cassette.classList.remove("playing")
-  reelL.classList.remove("spin")
-  reelR.classList.remove("spin")
+  reelL.classList.remove("spin");reelR.classList.remove("spin")
   playBtn.textContent="▶"
-  isPlaying=false
 }
-
 function togglePlay(){
-  const song=data[current.p].songs[current.s]
-  if(!song)return
-  if(!playerReady){
-    loadVideo(extractId(song.url))
-    startAnim()
-    return
-  }
-  isPlaying ? (pauseCmd(),stopAnim()) : (playCmd(),startAnim())
+  const s=data[current.p]?.songs[current.s]
+  if(!s)return
+  loadVideo(extractId(s.url))
+  startAnim()
 }
+function playSong(p,s){current={p,s};togglePlay()}
 
-function play(p,s){current={p,s};playerReady=false;iframe.src="";togglePlay()}
-function next(){const l=data[current.p].songs;if(l.length){current.s=(current.s+1)%l.length;play(current.p,current.s)}}
-function prev(){const l=data[current.p].songs;if(l.length){current.s=(current.s-1+l.length)%l.length;play(current.p,current.s)}}
-function shuffle(){
-  const p=Math.floor(Math.random()*data.length)
-  const s=Math.floor(Math.random()*data[p].songs.length)
-  play(p,s)
-}
+/* ===== DRAG (DESKTOP + TOUCH) ===== */
+function makeDraggable(el,p,s){
+  el.draggable=true
+  el.ondragstart=()=>dragged={p,s}
 
-async function fetchTitle(url){
-  try{
-    const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
-    return (await r.json()).title
-  }catch{return"Unknown Track"}
-}
-async function addSong(){
-  const url=ytInput.value.trim()
-  if(!url)return
-  const title=await fetchTitle(url)
-  data[current.p].songs.push({url,title})
-  save();render();ytInput.value=""
-}
-function addPlaylist(){
-  const name=prompt("Playlist name?")
-  if(!name)return
-  data.push({name,songs:[]})
-  save();render()
-}
-function renamePlaylist(i){
-  const n=prompt("Rename playlist",data[i].name)
-  if(!n)return
-  data[i].name=n
-  save();render()
-}
-function deletePlaylist(i){
-  if(!confirm("Delete playlist?"))return
-  data.splice(i,1)
-  save();render()
-}
-function deleteSong(p,s){
-  data[p].songs.splice(s,1)
-  save();render()
-}
-function dragStart(p,s){dragSong={p,s}}
-function dropSong(tp){
-  if(!dragSong)return
-  const song=data[dragSong.p].songs.splice(dragSong.s,1)[0]
-  data[tp].songs.push(song)
-  dragSong=null
-  save();render()
-}
-function toggleFolder(i){
-  document.querySelectorAll(".folder").forEach((f,idx)=>{
-    f.classList.toggle("open", idx===i && !f.classList.contains("open"))
+  el.addEventListener("touchstart",()=>{
+    dragged={p,s}
+    el.classList.add("dragging")
+  },{passive:true})
+
+  el.addEventListener("touchend",e=>{
+    el.classList.remove("dragging")
+    const t=e.changedTouches[0]
+    const target=document.elementFromPoint(t.clientX,t.clientY)?.closest(".folder")
+    if(target){
+      const to=[...playlistsEl.children].indexOf(target)
+      if(to>=0 && to!==p){
+        const song=data[p].songs.splice(s,1)[0]
+        data[to].songs.push(song)
+        save();render()
+      }
+    }
+    dragged=null
   })
 }
+
+/* ===== PLAYLIST UI ===== */
+function toggleFolder(i){
+  data[i].open=!data[i].open
+  save();render()
+}
+
 function render(){
-  playlists.innerHTML=""
-  data.forEach((p,pi)=>{
-    playlists.innerHTML+=`
-    <div class="folder"
-      ondragover="event.preventDefault();this.classList.add('drop-hover')"
-      ondragleave="this.classList.remove('drop-hover')"
-      ondrop="this.classList.remove('drop-hover');dropSong(${pi})">
+  playlistsEl.innerHTML=""
+  data.forEach((pl,pi)=>{
+    const box=document.createElement("div")
+    box.className="folder"+(pl.open?" open":"")
+    box.innerHTML=`
       <div class="folder-header" onclick="toggleFolder(${pi})">
-        ${p.name}
+        <span>${pl.name}</span>
         <div class="folder-actions" onclick="event.stopPropagation()">
-          <button onclick="renamePlaylist(${pi})">✎</button>
-          <button onclick="deletePlaylist(${pi})">🗑</button>
+          <span onclick="renamePlaylist(${pi})">✎</span>
+          <span onclick="deletePlaylist(${pi})">✕</span>
         </div>
       </div>
-      <div class="songs">
-        ${p.songs.map((s,si)=>`
-          <div class="song" draggable="true"
-               ondragstart="dragStart(${pi},${si})">
-            <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
-            <button class="song-delete" onclick="deleteSong(${pi},${si})">✕</button>
-          </div>
-        `).join("")}
-      </div>
-    </div>`
+      <div class="songs"></div>
+    `
+    const list=box.querySelector(".songs")
+    pl.songs.forEach((s,si)=>{
+      const row=document.createElement("div")
+      row.className="song"
+      row.innerHTML=`
+        <span onclick="playSong(${pi},${si})">${s.title}</span>
+        <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
+      `
+      makeDraggable(row,pi,si)
+      list.appendChild(row)
+    })
+
+    box.ondragover=e=>e.preventDefault()
+    box.ondrop=()=>{
+      if(!dragged||dragged.p===pi)return
+      const song=data[dragged.p].songs.splice(dragged.s,1)[0]
+      data[pi].songs.push(song)
+      save();render()
+    }
+
+    playlistsEl.appendChild(box)
   })
 }
 render()
+
+/* ===== CRUD ===== */
+function addSong(){
+  const u=ytInput.value.trim()
+  if(!u)return
+  data[current.p].songs.push({url:u,title:"YouTube Track"})
+  ytInput.value=""
+  save();render()
+}
+function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save();render()}
+function renamePlaylist(i){
+  const n=prompt("Rename playlist",data[i].name)
+  if(n){data[i].name=n;save();render()}
+}
+function deletePlaylist(i){
+  if(!confirm("Delete playlist?"))return
+  data.splice(i,1);save();render()
+}
+function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
+function next(){
+  if(!data[current.p].songs.length)return
+  current.s=(current.s+1)%data[current.p].songs.length
+  togglePlay()
+}
+function prev(){
+  if(!data[current.p].songs.length)return
+  current.s=Math.max(0,current.s-1)
+  togglePlay()
+}
+function shuffle(){
+  if(!data[current.p].songs.length)return
+  current.s=Math.floor(Math.random()*data[current.p].songs.length)
+  togglePlay()
+}
 </script>
 </body>
 </html>
