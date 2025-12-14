@@ -14,6 +14,7 @@
   --soft-blush:#F2BFB4;
   --sand:#F1CCA6;
   --ivory:#F2E6B8;
+  --paper:#fffdf9;
 }
 
 *{box-sizing:border-box}
@@ -40,7 +41,9 @@ body{
   background:linear-gradient(180deg,#fffefb,var(--ivory));
   border-radius:32px;
   padding:20px;
-  box-shadow:0 50px 140px rgba(242,134,149,.45);
+  box-shadow:
+    0 50px 140px rgba(242,134,149,.45),
+    inset 0 0 0 1px rgba(255,255,255,.6);
 }
 
 /* MOTION */
@@ -58,16 +61,23 @@ body{
 
 /* CASSETTE */
 .cassette{
+  position:relative;
   background:linear-gradient(180deg,var(--ivory),var(--sand));
   border-radius:26px;
   padding:20px;
   margin-bottom:16px;
   animation: idleFloat 6s ease-in-out infinite;
 }
-.cassette.playing{animation: playBounce 1.9s ease-in-out infinite}
+.cassette.playing{
+  animation: playBounce 1.9s ease-in-out infinite;
+}
 
 /* WINDOW */
-.window{padding:18px}
+.window{
+  background:linear-gradient(180deg,#fffdf8,var(--ivory));
+  border-radius:18px;
+  padding:18px;
+}
 .reels{display:flex;justify-content:space-between}
 .reel{
   width:56px;height:56px;border-radius:50%;
@@ -76,21 +86,60 @@ body{
 .spin{animation:spin 1.15s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* CONTROLS */
+/* INPUT */
+.input{display:flex;gap:8px;margin:14px 0}
+input{
+  flex:1;padding:10px 12px;border-radius:16px;
+  border:1px solid rgba(242,191,180,.8);
+}
+.input button{
+  border:none;border-radius:14px;padding:0 12px;
+  background:var(--blush);color:#fff;
+}
+
+/* CONTROLS — SMOOTH TUING */
 .controls{
-  display:flex;justify-content:center;gap:10px;margin-bottom:12px
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:12px;
 }
 .controls button{
-  height:38px;min-width:38px;
-  border:none;border-radius:999px;
   background:linear-gradient(180deg,var(--blush),#e07080);
   color:#fff;
+  border:none;
+  height:38px;
+  min-width:38px;
+  font-size:14px;
+  border-radius:999px;
   cursor:pointer;
-  transition:transform 420ms cubic-bezier(.22,1,.36,1);
+  transition:
+    transform 420ms cubic-bezier(.22,1,.36,1),
+    box-shadow 420ms cubic-bezier(.22,1,.36,1);
 }
-.controls button:hover{transform:translateY(-2px) scale(1.045)}
-.controls button:active{transform:scale(.965)}
+.controls button:hover{
+  transform:translateY(-2px) scale(1.045);
+}
+.controls button:active{
+  transform:scale(.965);
+}
 
+/* PLAYLIST */
+.playlists{margin-top:6px}
+.folder{
+  background:linear-gradient(180deg,#fffdf9,var(--ivory));
+  border-radius:18px;padding:12px;margin-bottom:12px;
+}
+.folder-header{
+  display:flex;justify-content:space-between;
+  font-size:13px;font-weight:500;cursor:pointer
+}
+.songs{margin-top:8px;display:none}
+.folder.open .songs{display:block}
+.song{display:flex;justify-content:space-between;padding:7px;border-radius:10px}
+.song-title{flex:1;cursor:pointer}
+
+/* CREDIT */
 .credit{
   position:fixed;
   bottom:14px;
@@ -115,37 +164,43 @@ iframe{display:none}
     </div>
   </div>
 
+  <div class="input">
+    <input id="ytInput" placeholder="Paste YouTube link…">
+    <button onclick="addSong()">＋</button>
+  </div>
+
   <div class="controls">
     <button onclick="prev()">⏮</button>
     <button id="playBtn" onclick="togglePlay()">▶</button>
     <button onclick="next()">⏭</button>
     <button onclick="shuffle()">🔀</button>
   </div>
+
+  <div class="playlists" id="playlists"></div>
+  <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
 </div>
 
 <div class="credit">@aintgely</div>
 
-<iframe
-  id="player"
-  allow="autoplay"
-  src=""
-></iframe>
+<iframe id="player" allow="autoplay"></iframe>
 
 <script>
-let data=[{songs:[]}]
-let current={s:0}
+let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
+let current={p:0,s:0}
 let isPlaying=false
 let playerReady=false
 
 const iframe=document.getElementById("player")
-const playBtn=document.getElementById("playBtn")
 const cassette=document.getElementById("cassette")
+const playBtn=document.getElementById("playBtn")
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
 
+function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
+
 function extractId(u){
-  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1]
-  return u.split("v=")[1]
+  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
+  return u.split("v=")[1]?.split("&")[0]
 }
 
 function loadVideo(id){
@@ -153,33 +208,17 @@ function loadVideo(id){
   setTimeout(()=>playerReady=true,1200)
 }
 
-function playVideo(){
+function playCmd(){
   iframe.contentWindow.postMessage(
     JSON.stringify({event:"command",func:"playVideo",args:[]}),
     "*"
   )
 }
-
-function pauseVideo(){
+function pauseCmd(){
   iframe.contentWindow.postMessage(
     JSON.stringify({event:"command",func:"pauseVideo",args:[]}),
     "*"
   )
-}
-
-function togglePlay(){
-  if(!playerReady){
-    loadVideo(extractId(data[0].songs[current.s]))
-    startAnim()
-    return
-  }
-  if(isPlaying){
-    pauseVideo()
-    stopAnim()
-  }else{
-    playVideo()
-    startAnim()
-  }
 }
 
 function startAnim(){
@@ -189,7 +228,6 @@ function startAnim(){
   playBtn.textContent="⏸"
   isPlaying=true
 }
-
 function stopAnim(){
   cassette.classList.remove("playing")
   reelL.classList.remove("spin")
@@ -198,9 +236,85 @@ function stopAnim(){
   isPlaying=false
 }
 
-function next(){}
-function prev(){}
-function shuffle(){}
+function togglePlay(){
+  const song=data[current.p].songs[current.s]
+  if(!song)return
+
+  if(!playerReady){
+    loadVideo(extractId(song.url))
+    startAnim()
+    return
+  }
+  if(isPlaying){
+    pauseCmd()
+    stopAnim()
+  }else{
+    playCmd()
+    startAnim()
+  }
+}
+
+function play(p,s){
+  current={p,s}
+  playerReady=false
+  iframe.src=""
+  togglePlay()
+}
+
+function next(){
+  const l=data[current.p].songs
+  if(!l.length)return
+  current.s=(current.s+1)%l.length
+  play(current.p,current.s)
+}
+function prev(){
+  const l=data[current.p].songs
+  if(!l.length)return
+  current.s=(current.s-1+l.length)%l.length
+  play(current.p,current.s)
+}
+function shuffle(){
+  const p=Math.floor(Math.random()*data.length)
+  const s=Math.floor(Math.random()*data[p].songs.length)
+  play(p,s)
+}
+
+async function fetchTitle(url){
+  try{
+    const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+    return (await r.json()).title
+  }catch{return"Unknown Track"}
+}
+async function addSong(){
+  const url=ytInput.value.trim()
+  if(!url)return
+  const title=await fetchTitle(url)
+  data[current.p].songs.push({url,title})
+  save();render();ytInput.value=""
+}
+function addPlaylist(){
+  const name=prompt("Playlist name?")
+  if(!name)return
+  data.push({name,songs:[]})
+  save();render()
+}
+
+function render(){
+  playlists.innerHTML=""
+  data.forEach((p,pi)=>{
+    playlists.innerHTML+=`
+    <div class="folder">
+      <div class="folder-header" onclick="this.parentElement.classList.toggle('open')">${p.name}</div>
+      <div class="songs">
+        ${p.songs.map((s,si)=>`
+        <div class="song">
+          <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
+        </div>`).join("")}
+      </div>
+    </div>`
+  })
+}
+render()
 </script>
 </body>
 </html>
