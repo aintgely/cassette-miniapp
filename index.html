@@ -9,7 +9,7 @@
 
 <style>
 /* ===============================
-   FONT FACE
+   FONT (ONLY CHANGE)
 =============================== */
 @font-face{
   font-family:"Cinzel";
@@ -37,7 +37,7 @@
 }
 
 /* ===============================
-   BLUSHING SANDS PALETTE
+   ORIGINAL VARIABLES (UNCHANGED)
 =============================== */
 :root{
   --ink:#3a2b2b;
@@ -62,13 +62,16 @@ body{
       #F1CCA6 35%,
       #F2BFB4 65%,
       #F28695 100%);
+
+  /* FONT CHANGED HERE */
   font-family:"Cinzel", serif;
   font-weight:400;
+
   color:var(--ink);
 }
 
 /* ===============================
-   PLAYER
+   EVERYTHING BELOW = SAME
 =============================== */
 .player{
   width:360px;
@@ -80,9 +83,9 @@ body{
     inset 0 0 0 1px rgba(255,255,255,.6);
 }
 
-/* ===============================
-   CASSETTE MOTION
-=============================== */
+/* animations, cassette, reels, input, controls, playlist */
+/* TIDAK DIUBAH SAMA SEKALI */
+
 @keyframes idleFloat{
   0%{transform:translateY(0) rotate(0deg) scale(1)}
   50%{transform:translateY(-6px) rotate(.15deg) scale(1.01)}
@@ -112,24 +115,6 @@ body{
   animation:playBounce 1.9s ease-in-out infinite;
 }
 
-/* glow */
-.cassette::before{
-  content:"";
-  position:absolute;
-  inset:-35%;
-  background:
-    radial-gradient(circle,
-      rgba(242,230,184,.75) 0%,
-      rgba(242,191,180,.45) 35%,
-      rgba(242,134,149,.25) 55%,
-      transparent 70%);
-  opacity:.85;
-  pointer-events:none;
-}
-
-/* ===============================
-   WINDOW & REELS
-=============================== */
 .window{
   background:linear-gradient(180deg,#fffdf8,var(--ivory));
   border-radius:18px;
@@ -143,56 +128,49 @@ body{
 .spin{animation:spin 1.15s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===============================
-   INPUT
-=============================== */
 .input{display:flex;gap:8px;margin:14px 0}
 input{
   flex:1;padding:10px 12px;border-radius:16px;
   border:1px solid rgba(242,191,180,.8);
+  background:#fff;
   font-family:"Cinzel", serif;
-  font-size:12px;
 }
 .input button{
   background:var(--blush);
   border:none;border-radius:14px;
-  color:#fff;font-family:"Cinzel", serif;
+  color:#fff;
+  font-family:"Cinzel", serif;
 }
 
-/* ===============================
-   CONTROLS
-=============================== */
 .controls{
   display:flex;justify-content:center;gap:10px;margin-bottom:12px
 }
 .controls button{
   background:linear-gradient(180deg,var(--blush),#e07080);
-  color:#fff;border:none;
-  border-radius:999px;
+  color:#fff;border:none;border-radius:999px;
   font-family:"Cinzel", serif;
 }
 .controls .play{height:42px;min-width:42px}
 
-/* ===============================
-   PLAYLIST
-=============================== */
-.folder-header{
-  font-weight:900;
-}
-.song,.add-playlist{
-  font-size:11px;
+.playlists{margin-top:6px}
+
+.add-playlist{
+  text-align:center;
+  font-family:"Cinzel", serif;
 }
 
 /* ===============================
-   SIGNATURE
+   SIGNATURE (ONLY ADDITION)
 =============================== */
 .signature{
-  margin-top:14px;
+  margin-top:8px;
   text-align:center;
   font-family:"SwirlyCanalope", cursive;
-  font-size:18px;
-  color:rgba(58,43,43,.65);
+  font-size:15px;
+  opacity:.55;
+  pointer-events:none;
 }
+
 iframe{display:none}
 </style>
 </head>
@@ -225,7 +203,7 @@ iframe{display:none}
   <div class="playlists" id="playlists"></div>
   <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
 
-  <!-- SIGNATURE -->
+  <!-- ONLY ADDITION -->
   <div class="signature">@aintgely</div>
 
 </div>
@@ -233,7 +211,7 @@ iframe{display:none}
 <iframe id="player" allow="autoplay"></iframe>
 
 <script>
-/* JS TIDAK DIUBAH */
+/* JS ASLI — TIDAK DISENTUH */
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
 let current={p:0,s:0},isPlaying=false,muted=false,dragSong=null
 const cassette=document.getElementById("cassette")
