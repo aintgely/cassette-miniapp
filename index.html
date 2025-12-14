@@ -42,13 +42,12 @@ body{
   box-shadow:0 50px 140px rgba(242,134,149,.45);
 }
 
-/* ===============================
-   CASSETTE
-=============================== */
+/* ================= CASSETTE ================= */
 @keyframes idleFloat{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
-  100%{transform:translateY(0)}
+  0%{transform:translateY(0) rotate(.2deg)}
+  40%{transform:translateY(-6px) rotate(-.4deg)}
+  70%{transform:translateY(-3px) rotate(.3deg)}
+  100%{transform:translateY(0) rotate(.2deg)}
 }
 @keyframes playBounce{
   0%{transform:translateY(0)}
@@ -57,57 +56,79 @@ body{
   100%{transform:translateY(0)}
 }
 
-/* GLOW ROTATION */
-@keyframes glowSpin{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
-}
-
 .cassette{
-  position:relative;          /* ← DITAMBAHKAN */
-  overflow:hidden;            /* ← DITAMBAHKAN */
+  position:relative;
   background:linear-gradient(180deg,var(--ivory),var(--sand));
   border-radius:26px;
   padding:20px;
   margin-bottom:16px;
   animation:idleFloat 6s ease-in-out infinite;
+  overflow:hidden;
+}
+.cassette.playing{
+  animation:playBounce 1.9s ease-in-out infinite;
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
 }
 
-/* DECO GLOW */
+/* shine */
 .cassette::before{
   content:"";
   position:absolute;
-  inset:-45%;
-  border-radius:50%;
-  background:
-    conic-gradient(
-      rgba(242,134,149,0),
-      rgba(242,134,149,.35),
-      rgba(242,191,180,.45),
-      rgba(242,230,184,.35),
-      rgba(242,134,149,0)
-    );
-  filter:blur(30px);
-  opacity:0;
+  inset:0;
+  background:linear-gradient(120deg,
+    rgba(255,255,255,.55) 0%,
+    rgba(255,255,255,.15) 35%,
+    rgba(255,255,255,0) 60%);
   pointer-events:none;
-  transition:opacity .6s ease;
 }
 
-.cassette.playing{
-  animation:playBounce 1.9s ease-in-out infinite;
+/* grain */
+.cassette::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.035),
+      rgba(255,255,255,.035) 2px,
+      rgba(0,0,0,.02) 4px);
+  mix-blend-mode:overlay;
+  pointer-events:none;
 }
 
-.cassette.playing::before{
-  opacity:.9;
-  animation:glowSpin 14s linear infinite;
+/* screws */
+.screw{
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:radial-gradient(circle,#aaa,#555);
+  opacity:.45;
 }
+.screw.tl{top:10px;left:10px}
+.screw.tr{top:10px;right:10px}
+.screw.bl{bottom:10px;left:10px}
+.screw.br{bottom:10px;right:10px}
 
 .window{padding:18px}
 .reels{display:flex;justify-content:space-between}
+
 .reel{
-  width:56px;height:56px;border-radius:50%;
+  width:56px;
+  height:56px;
+  border-radius:50%;
   border:5px solid var(--ink);
+  position:relative;
+  background:
+    radial-gradient(circle at center,
+      var(--ink) 0 6px,
+      transparent 7px),
+    radial-gradient(circle at center,
+      rgba(0,0,0,.18),
+      rgba(0,0,0,0) 60%);
 }
+
 .spin{animation:spin 1.15s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -208,6 +229,13 @@ iframe{display:none}
 
 <div class="player">
   <div class="cassette" id="cassette">
+
+    <!-- screws -->
+    <div class="screw tl"></div>
+    <div class="screw tr"></div>
+    <div class="screw bl"></div>
+    <div class="screw br"></div>
+
     <div class="window">
       <div class="reels">
         <div class="reel" id="reelL"></div>
@@ -235,10 +263,151 @@ iframe{display:none}
 <div class="credit">@aintgely</div>
 <iframe id="player" allow="autoplay"></iframe>
 
-<!-- 🔒 JS ASLI KAMU — TIDAK DISENTUH -->
 <script>
-/* (JS persis seperti yang kamu kirim, tidak aku ubah satu baris pun) */
-</script>
+let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
+let current={p:0,s:0}
+let dragSong=null
+let isPlaying=false
+let playerReady=false
 
+const iframe=document.getElementById("player")
+const cassette=document.getElementById("cassette")
+const playBtn=document.getElementById("playBtn")
+const reelL=document.getElementById("reelL")
+const reelR=document.getElementById("reelR")
+
+function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
+
+function extractId(u){
+  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
+  return u.split("v=")[1]?.split("&")[0]
+}
+
+/* YOUTUBE */
+function loadVideo(id){
+  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`
+  setTimeout(()=>playerReady=true,1000)
+}
+function playCmd(){
+  iframe.contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:[]}),"*")
+}
+function pauseCmd(){
+  iframe.contentWindow.postMessage(JSON.stringify({event:"command",func:"pauseVideo",args:[]}),"*")
+}
+
+/* PLAY */
+function startAnim(){
+  cassette.classList.add("playing")
+  reelL.classList.add("spin")
+  reelR.classList.add("spin")
+  playBtn.textContent="⏸"
+  isPlaying=true
+}
+function stopAnim(){
+  cassette.classList.remove("playing")
+  reelL.classList.remove("spin")
+  reelR.classList.remove("spin")
+  playBtn.textContent="▶"
+  isPlaying=false
+}
+
+function togglePlay(){
+  const song=data[current.p].songs[current.s]
+  if(!song)return
+  if(!playerReady){
+    loadVideo(extractId(song.url))
+    startAnim()
+    return
+  }
+  isPlaying ? (pauseCmd(),stopAnim()) : (playCmd(),startAnim())
+}
+
+/* NAV */
+function play(p,s){current={p,s};playerReady=false;iframe.src="";togglePlay()}
+function next(){const l=data[current.p].songs;if(l.length){current.s=(current.s+1)%l.length;play(current.p,current.s)}}
+function prev(){const l=data[current.p].songs;if(l.length){current.s=(current.s-1+l.length)%l.length;play(current.p,current.s)}}
+function shuffle(){
+  const p=Math.floor(Math.random()*data.length)
+  const s=Math.floor(Math.random()*data[p].songs.length)
+  play(p,s)
+}
+
+/* PLAYLIST */
+async function fetchTitle(url){
+  try{
+    const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+    return (await r.json()).title
+  }catch{return"Unknown Track"}
+}
+async function addSong(){
+  const url=ytInput.value.trim()
+  if(!url)return
+  const title=await fetchTitle(url)
+  data[current.p].songs.push({url,title})
+  save();render();ytInput.value=""
+}
+function addPlaylist(){
+  const name=prompt("Playlist name?")
+  if(!name)return
+  data.push({name,songs:[]})
+  save();render()
+}
+function renamePlaylist(i){
+  const n=prompt("Rename playlist",data[i].name)
+  if(!n)return
+  data[i].name=n
+  save();render()
+}
+function deletePlaylist(i){
+  if(!confirm("Delete playlist?"))return
+  data.splice(i,1)
+  save();render()
+}
+function deleteSong(p,s){
+  data[p].songs.splice(s,1)
+  save();render()
+}
+function dragStart(p,s){dragSong={p,s}}
+function dropSong(tp){
+  if(!dragSong)return
+  const song=data[dragSong.p].songs.splice(dragSong.s,1)[0]
+  data[tp].songs.push(song)
+  dragSong=null
+  save();render()
+}
+function toggleFolder(i){
+  document.querySelectorAll(".folder").forEach((f,idx)=>{
+    f.classList.toggle("open", idx===i && !f.classList.contains("open"))
+  })
+}
+function render(){
+  playlists.innerHTML=""
+  data.forEach((p,pi)=>{
+    playlists.innerHTML+=`
+    <div class="folder"
+      ondragover="event.preventDefault();this.classList.add('drop-hover')"
+      ondragleave="this.classList.remove('drop-hover')"
+      ondrop="this.classList.remove('drop-hover');dropSong(${pi})">
+      <div class="folder-header" onclick="toggleFolder(${pi})">
+        ${p.name}
+        <div class="folder-actions" onclick="event.stopPropagation()">
+          <button onclick="renamePlaylist(${pi})">✎</button>
+          <button onclick="deletePlaylist(${pi})">🗑</button>
+        </div>
+      </div>
+      <div class="songs">
+        ${p.songs.map((s,si)=>`
+          <div class="song" draggable="true"
+               ondragstart="dragStart(${pi},${si})">
+            <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
+            <button class="song-delete" onclick="deleteSong(${pi},${si})">✕</button>
+          </div>
+        `).join("")}
+      </div>
+    </div>`
+  })
+}
+render()
+</script>
 </body>
 </html>
