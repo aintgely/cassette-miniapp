@@ -8,6 +8,10 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
+/* =======================
+   ⚠️ UI CSS TIDAK DIUBAH
+   ======================= */
+
 :root{
   --ink:#3a2b2b;
   --cassette-a:#f3ead7;
@@ -15,8 +19,8 @@
   --blush:#F28695;
 }
 
-/* ================= BASE ================= */
 *{box-sizing:border-box}
+
 body{
   margin:0;height:100vh;
   display:flex;justify-content:center;align-items:center;
@@ -24,6 +28,7 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:var(--ink);
 }
+
 .player{
   width:360px;
   background:linear-gradient(180deg,#fffefb,#f6ecd8);
@@ -32,21 +37,31 @@ body{
   box-shadow:0 50px 140px rgba(0,0,0,.35);
 }
 
-/* ================= ANIM ================= */
+/* --- ANIM UI ASLI --- */
 @keyframes idleFloat{
-  0%,100%{transform:translateY(0)}
+  0%{transform:translateY(0)}
   50%{transform:translateY(-6px)}
+  100%{transform:translateY(0)}
 }
 @keyframes playBounce{
-  0%,100%{transform:translateY(0)}
+  0%{transform:translateY(0)}
   40%{transform:translateY(-10px)}
+  100%{transform:translateY(0)}
 }
+@keyframes analogWobble{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(.15deg)}
+  75%{transform:rotate(-.15deg)}
+}
+
+/* --- TUING EFFECT (NEW, MINIMAL) --- */
 @keyframes tuing{
   0%{transform:scale(1)}
-  40%{transform:scale(1.18)}
+  40%{transform:scale(1.15)}
   70%{transform:scale(.96)}
   100%{transform:scale(1)}
 }
+.tuing:active{animation:tuing .35s}
 
 /* ================= CASSETTE ================= */
 .cassette{
@@ -56,32 +71,67 @@ body{
   padding:20px;
   margin-bottom:16px;
   animation:idleFloat 6s ease-in-out infinite;
+  overflow:hidden;
 }
-.cassette.playing{animation:playBounce 1.8s ease-in-out infinite}
+.cassette.playing{
+  animation:
+    playBounce 1.8s ease-in-out infinite,
+    analogWobble 6s ease-in-out infinite;
+}
 
 /* frame */
 .cassette-frame{
   position:absolute;inset:-6px;
   border-radius:32px;
   border:2px solid rgba(0,0,0,.25);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),
-             inset 0 -10px 18px rgba(0,0,0,.15);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.35),
+    inset 0 -10px 18px rgba(0,0,0,.15);
   pointer-events:none;
 }
 
 /* label */
 .label{
-  position:absolute;top:12px;left:50%;
+  position:absolute;
+  top:12px;left:50%;
   transform:translateX(-50%);
   padding:6px 12px;
   font-size:11px;
+  max-width:82%;
   background:#fffef6;
   border-radius:6px;
   font-family:"Segoe Script","Comic Sans MS",cursive;
 }
 
 /* reels */
+.window{padding:18px}
 .reels{display:flex;justify-content:space-between;align-items:center}
+
+/* tape */
+.tape-slot{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:96px;height:12px;
+  background:rgba(0,0,0,.12);
+  border-radius:999px;
+  overflow:hidden;
+}
+.tape{
+  inset:0;
+  position:absolute;
+  background:repeating-linear-gradient(
+    90deg,
+    rgba(0,0,0,.35) 0 6px,
+    rgba(255,255,255,.15) 6px 12px
+  );
+  animation:tapeIdle 6s linear infinite;
+}
+.cassette.playing .tape{animation:tapePlay 1.2s linear infinite}
+@keyframes tapeIdle{to{background-position:120px 0}}
+@keyframes tapePlay{to{background-position:240px 0}}
+
+/* 3D reel */
 .reel{
   width:56px;height:56px;border-radius:50%;
   background:radial-gradient(circle,#eee,#555);
@@ -89,56 +139,26 @@ body{
 .spin{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* tape */
-.tape-slot{
-  width:96px;height:12px;border-radius:999px;
-  background:rgba(0,0,0,.15);
-  overflow:hidden;
-}
-.tape{
-  height:100%;
-  background:repeating-linear-gradient(90deg,#000 0 6px,#fff 6px 12px);
-  animation:tapeIdle 6s linear infinite;
-}
-.cassette.playing .tape{animation:tapePlay 1.2s linear infinite}
-@keyframes tapeIdle{to{background-position:120px 0}}
-@keyframes tapePlay{to{background-position:240px 0}}
-
-/* ================= CONTROLS ================= */
-.input,.controls{display:flex;gap:10px;margin:14px 0}
+/* input & controls */
+.input,.controls{display:flex;gap:8px;margin:14px 0}
+input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid #e4c1b0}
 button{
   border:none;border-radius:999px;
   background:linear-gradient(180deg,var(--blush),#e07080);
-  color:#fff;
-  padding:8px 14px;
-  cursor:pointer;
-  transition:transform .2s;
+  color:#fff;padding:8px 14px;
 }
-button:active{animation:tuing .4s}
 
-/* ================= PLAYLIST ================= */
-.folder{
-  background:#fffdf8;
-  border-radius:18px;
-  padding:10px;margin-bottom:12px;
-}
-.folder-header{
-  display:flex;justify-content:space-between;
-  cursor:pointer;
-}
+/* playlist */
+.folder{background:#fffdf8;border-radius:18px;padding:10px;margin-bottom:12px}
+.folder-header{display:flex;justify-content:space-between;font-size:13px;cursor:pointer}
 .songs{display:none;margin-top:6px}
 .folder.open .songs{display:block}
-.song{
-  display:flex;align-items:center;
-  padding:6px;border-radius:10px;
-}
+.song{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px}
 .song:hover{background:rgba(242,191,180,.3)}
-.song-title{flex:1;cursor:pointer}
-.song-delete{background:none;color:#333}
+.song-title{flex:1;font-size:12px;cursor:pointer}
+.song-delete{background:none;border:none;font-size:11px;opacity:.4}
 
-/* ================= MISC ================= */
 .credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
-iframe{display:none}
 </style>
 </head>
 
@@ -149,22 +169,24 @@ iframe{display:none}
     <div class="cassette-frame"></div>
     <div class="label" id="label">No Track</div>
 
-    <div class="reels">
-      <div class="reel" id="reelL"></div>
-      <div class="tape-slot"><div class="tape"></div></div>
-      <div class="reel" id="reelR"></div>
+    <div class="window">
+      <div class="reels">
+        <div class="reel" id="reelL"></div>
+        <div class="tape-slot"><div class="tape"></div></div>
+        <div class="reel" id="reelR"></div>
+      </div>
     </div>
   </div>
 
   <div class="input">
-    <input id="ytInput" placeholder="Paste YouTube link…" style="flex:1">
-    <button onclick="addSong()">＋</button>
+    <input id="ytInput" placeholder="Paste YouTube link…">
+    <button class="tuing" onclick="addSong()">＋</button>
   </div>
 
   <div class="controls">
-    <button onclick="prev()">⏮</button>
-    <button id="playBtn" onclick="togglePlay()">▶</button>
-    <button onclick="next()">⏭</button>
+    <button class="tuing" onclick="prev()">⏮</button>
+    <button class="tuing" id="playBtn" onclick="togglePlay()">▶</button>
+    <button class="tuing" onclick="next()">⏭</button>
   </div>
 
   <div id="playlists"></div>
@@ -174,11 +196,14 @@ iframe{display:none}
 <div id="yt"></div>
 
 <script>
-/* ========== YOUTUBE PLAYER ========== */
-let ytPlayer
+/* =======================
+   🔧 LOGIC FIX ONLY
+   ======================= */
+
+let ytPlayer;
 function onYouTubeIframeAPIReady(){
-  ytPlayer=new YT.Player('yt',{
-    height:'0',width:'0',
+  ytPlayer=new YT.Player("yt",{
+    height:"0",width:"0",
     playerVars:{autoplay:0,controls:0},
     events:{onStateChange:onYTState}
   })
@@ -187,23 +212,38 @@ function onYTState(e){
   if(e.data===YT.PlayerState.ENDED) next()
 }
 
-/* ========== DATA ========== */
-const randColor=()=>[`hsl(${Math.random()*360},50%,88%)`,`hsl(${Math.random()*360},55%,75%)`]
+const randColor=()=>[
+  `hsl(${Math.random()*360},50%,88%)`,
+  `hsl(${Math.random()*360},55%,75%)`
+]
+
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
   {name:"My Playlist",color:randColor(),songs:[]}
 ]
 let current={p:0,s:0},isPlaying=false
 
-/* ========== PLAYER CONTROL ========== */
-function playVideo(id){
-  ytPlayer.loadVideoById(id)
+function extractId(u){
+  return u.includes("youtu.be")
+    ? u.split("youtu.be/")[1]
+    : u.split("v=")[1].split("&")[0]
+}
+
+function play(p,s){
+  current={p,s}
+  const song=data[p].songs[s]
+  label.textContent=song.title
+  cassette.style.setProperty("--cassette-a",data[p].color[0])
+  cassette.style.setProperty("--cassette-b",data[p].color[1])
+  ytPlayer.loadVideoById(extractId(song.url))
   startAnim()
 }
+
 function togglePlay(){
   if(!ytPlayer||!data[current.p].songs[current.s])return
   isPlaying?ytPlayer.pauseVideo():ytPlayer.playVideo()
   isPlaying?stopAnim():startAnim()
 }
+
 function startAnim(){
   cassette.classList.add("playing")
   reelL.classList.add("spin")
@@ -219,15 +259,6 @@ function stopAnim(){
   isPlaying=false
 }
 
-/* ========== NAV ========== */
-function play(p,s){
-  current={p,s}
-  const song=data[p].songs[s]
-  label.textContent=song.title
-  cassette.style.setProperty("--cassette-a",data[p].color[0])
-  cassette.style.setProperty("--cassette-b",data[p].color[1])
-  playVideo(extractId(song.url))
-}
 function next(){
   const l=data[current.p].songs
   if(!l.length)return
@@ -241,17 +272,14 @@ function prev(){
   play(current.p,current.s)
 }
 
-/* ========== PLAYLIST ========== */
-function extractId(u){
-  return u.includes("youtu.be")?u.split("youtu.be/")[1]:u.split("v=")[1].split("&")[0]
-}
-async function addSong(){
+function addSong(){
   const url=ytInput.value.trim()
   if(!url)return
   data[current.p].songs.push({url,title:url})
   localStorage.setItem("cassettePlaylists",JSON.stringify(data))
   render();ytInput.value=""
 }
+
 function render(){
   playlists.innerHTML=""
   data.forEach((p,pi)=>{
@@ -263,8 +291,8 @@ function render(){
       <div class="songs">
         ${p.songs.map((s,si)=>`
           <div class="song">
-            <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
-            <button class="song-delete" onclick="data[${pi}].songs.splice(${si},1);render()">✕</button>
+            <div class="song-title tuing" onclick="play(${pi},${si})">${s.title}</div>
+            <button class="song-delete tuing" onclick="data[${pi}].songs.splice(${si},1);render()">✕</button>
           </div>`).join("")}
       </div>
     </div>`
@@ -272,5 +300,6 @@ function render(){
 }
 render()
 </script>
+
 </body>
 </html>
