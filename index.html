@@ -8,86 +8,188 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-/* ===== CSS ASLI (TIDAK DIUBAH) ===== */
+/* ===== BASE ===== */
 :root{
-  --ink:#3d251e;--dark:#4c3228;--wood:#5b3e31;--mid:#6a4a3a;
-  --brown:#765341;--soft:#8b6c5c;--sand:#a08679;
-  --label:#bca89f;--ivory:#d8cbc4;--accent:#6a4a3a;
+  --ink:#1b1b1b;
+  --accent:#6a4a3a;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;height:100vh;display:flex;justify-content:center;align-items:center;
-  background:radial-gradient(circle at top,#d8cbc4 0%,#bca89f 35%,#8b6c5c 65%,#5b3e31 100%);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);
+  margin:0;height:100vh;
+  display:flex;justify-content:center;align-items:center;
+  background:#e5e5e5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
 }
 .player{
-  width:360px;background:linear-gradient(180deg,#fffdf7,var(--ivory));
-  border-radius:34px;padding:20px;
-  box-shadow:0 40px 120px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.8);
+  width:360px;
+  background:linear-gradient(180deg,#fafafa,#e0e0e0);
+  border-radius:34px;
+  padding:20px;
+  box-shadow:0 40px 120px rgba(0,0,0,.25);
 }
-@keyframes idleSway{
-  0%{transform:translateY(0) rotate(.2deg)}
-  50%{transform:translateY(-4px) rotate(-.4deg)}
-  100%{transform:translateY(0) rotate(.2deg)}
-}
-@keyframes groove{
-  0%{transform:translateY(0)}
-  40%{transform:translateY(-6px)}
-  70%{transform:translateY(-2px)}
-  100%{transform:translateY(0)}
-}
+
+/* ===== CASSETTE ===== */
 .cassette{
-  position:relative;background:linear-gradient(180deg,var(--ivory),var(--sand));
-  border-radius:26px;padding:20px;margin-bottom:16px;
-  animation:idleSway 6s ease-in-out infinite;cursor:pointer;overflow:hidden;
+  position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(170,170,170,.35));
+  backdrop-filter:blur(6px);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.08),
+    0 20px 60px rgba(0,0,0,.35);
+  cursor:pointer;
+  overflow:hidden;
 }
-.cassette.playing{animation:groove 2.2s cubic-bezier(.22,1,.36,1) infinite;}
+
+/* shine */
+.shine{
+  position:absolute;
+  inset:-40%;
+  background:linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,.55) 45%,
+    rgba(255,255,255,.25) 50%,
+    transparent 60%
+  );
+  transform:translateX(-60%);
+  animation:shineIdle 8s ease-in-out infinite;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+@keyframes shineIdle{
+  0%{transform:translateX(-60%)}
+  50%{transform:translateX(60%)}
+  100%{transform:translateX(-60%)}
+}
+.cassette.playing .shine{
+  animation:shinePlay 3s linear infinite;
+  opacity:.9;
+}
+@keyframes shinePlay{
+  from{transform:translateX(-80%)}
+  to{transform:translateX(80%)}
+}
+
+/* screws */
+.screw{
+  position:absolute;
+  width:9px;height:9px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#555,#111);
+}
+.screw.tl{top:10px;left:10px}
+.screw.tr{top:10px;right:10px}
+.screw.bl{bottom:10px;left:10px}
+.screw.br{bottom:10px;right:10px}
+
+/* label */
+.cassette-label{
+  display:flex;justify-content:space-between;
+  font-size:11px;letter-spacing:.08em;
+  margin-bottom:8px;
+}
+.cassette-label span{
+  background:rgba(0,0,0,.55);
+  color:#eee;
+  padding:2px 6px;
+  border-radius:4px;
+}
+
+/* window */
 .window{
-  background:linear-gradient(180deg,#3d251e,#2b1812);
-  border-radius:18px;padding:18px;box-shadow:inset 0 0 14px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,#1b1b1b,#0d0d0d);
+  border-radius:10px;
+  padding:14px 18px;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.8);
 }
 .reels{display:flex;justify-content:space-between}
 .reel{
-  width:56px;height:56px;border-radius:50%;
-  border:4px solid #e9ded0;
+  position:relative;
+  width:58px;height:58px;
+  border-radius:50%;
+  border:3px solid #cfcfcf;
   background:
-    radial-gradient(circle at center,#e9ded0 0 6px,transparent 7px),
-    radial-gradient(circle at center,rgba(0,0,0,.45),transparent 60%);
+    radial-gradient(circle at center,#e5e5e5 0 6px,transparent 7px),
+    radial-gradient(circle at center,rgba(0,0,0,.6),transparent 62%);
 }
 .spin{animation:spin 1.25s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.panel{
-  overflow:hidden;max-height:0;opacity:0;transform:translateY(-10px);
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .6s ease,transform .6s ease;
+
+/* hub */
+.hub{
+  position:absolute;
+  top:50%;left:50%;
+  width:14px;height:14px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#f2f2f2,#9e9e9e 70%,#6f6f6f);
+  animation:hubIdle 3s ease-in-out infinite;
 }
-.player.open .panel{max-height:900px;opacity:1;transform:translateY(0)}
+@keyframes hubIdle{
+  0%,100%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.08)}
+}
+.spin .hub{animation:hubSpin 1.25s linear infinite}
+@keyframes hubSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* ===== PANEL ===== */
+.panel{
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transform:translateY(-10px);
+  transition:.6s;
+}
+.player.open .panel{
+  max-height:900px;
+  opacity:1;
+  transform:translateY(0);
+}
 .input{display:flex;gap:8px;margin:14px 0}
-input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid rgba(0,0,0,.1)}
-.input button{border:none;border-radius:14px;padding:0 14px;background:var(--accent);color:#fff}
+input{
+  flex:1;padding:10px 12px;
+  border-radius:16px;border:1px solid rgba(0,0,0,.15);
+}
+.input button{
+  border:none;border-radius:14px;
+  padding:0 14px;background:var(--accent);color:#fff;
+}
 .controls{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
 .controls button{
   height:38px;min-width:38px;border:none;border-radius:999px;
-  background:linear-gradient(180deg,#6a4a3a,#4c3228);color:#fff;
+  background:#444;color:#fff;
 }
+
+/* playlist */
 .folder{
-  background:linear-gradient(180deg,#fffdf8,var(--label));
-  border-radius:18px;padding:10px;margin-bottom:12px;
+  background:#f2f2f2;
+  border-radius:18px;
+  padding:10px;margin-bottom:12px;
 }
 .folder-header{
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:13px;font-weight:500;cursor:pointer;
+  display:flex;justify-content:space-between;
+  font-size:13px;cursor:pointer;
 }
 .folder-actions span{margin-left:8px;opacity:.6;cursor:pointer}
 .songs{display:none;margin-top:6px}
 .folder.open .songs{display:block}
 .song{
-  display:flex;justify-content:space-between;align-items:center;
+  display:flex;justify-content:space-between;
   font-size:13px;padding:6px 8px;border-radius:10px;
 }
 .song.dragging{opacity:.4}
 .song:hover{background:rgba(0,0,0,.05)}
 .song span.x{opacity:.4;cursor:pointer}
-.credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
+
+.credit{
+  position:fixed;bottom:14px;left:16px;
+  font-size:12px;opacity:.55;
+}
 iframe{display:none}
 </style>
 </head>
@@ -95,11 +197,25 @@ iframe{display:none}
 <body>
 
 <div class="player">
+
   <div class="cassette" onclick="togglePanel()">
+    <span class="shine"></span>
+
+    <span class="screw tl"></span>
+    <span class="screw tr"></span>
+    <span class="screw bl"></span>
+    <span class="screw br"></span>
+
+    <div class="cassette-label">
+      <span>SIDE B</span>
+      <span>CD it II</span>
+      <span>90</span>
+    </div>
+
     <div class="window">
       <div class="reels">
-        <div class="reel" id="reelL"></div>
-        <div class="reel" id="reelR"></div>
+        <div class="reel" id="reelL"><span class="hub"></span></div>
+        <div class="reel" id="reelR"><span class="hub"></span></div>
       </div>
     </div>
   </div>
@@ -120,6 +236,7 @@ iframe{display:none}
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
   </div>
+
 </div>
 
 <div class="credit">@aintgely</div>
@@ -140,6 +257,7 @@ const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
 const playBtn=document.getElementById("playBtn")
 const playlistsEl=document.getElementById("playlists")
+const cassette=document.querySelector(".cassette")
 
 function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
 function togglePanel(){document.querySelector(".player").classList.toggle("open")}
@@ -158,7 +276,7 @@ async function fetchTitle(url){
   }catch{return "Unknown Title"}
 }
 
-/* ===== YT PLAYER ===== */
+/* ===== PLAYER ===== */
 function yt(cmd){
   iframe.contentWindow?.postMessage(JSON.stringify({event:"command",func:cmd,args:[]}),"*")
 }
@@ -166,39 +284,38 @@ function loadVideo(id){
   iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`
   loadedId=id
   isPlaying=true
-  startAnim()
+  cassette.classList.add("playing")
+  reelL.classList.add("spin")
+  reelR.classList.add("spin")
+  playBtn.textContent="⏸"
 }
 window.addEventListener("message",e=>{
   try{
     const m=JSON.parse(e.data)
-    if(m.event==="onStateChange" && m.info===0){
-      isPlaying=false
-      next()
-    }
+    if(m.event==="onStateChange" && m.info===0)next()
   }catch{}
 })
-function startAnim(){
-  reelL.classList.add("spin");reelR.classList.add("spin")
-  playBtn.textContent="⏸"
-}
-function stopAnim(){
-  reelL.classList.remove("spin");reelR.classList.remove("spin")
-  playBtn.textContent="▶"
-}
 
-/* ===== PLAY / PAUSE ===== */
 function togglePlay(){
   const song=data[current.p]?.songs[current.s]
   if(!song)return
   const id=extractId(song.url)
 
-  if(loadedId!==id){
-    loadVideo(id);return
-  }
+  if(loadedId!==id){loadVideo(id);return}
   if(isPlaying){
-    yt("pauseVideo");stopAnim();isPlaying=false
+    yt("pauseVideo")
+    cassette.classList.remove("playing")
+    reelL.classList.remove("spin")
+    reelR.classList.remove("spin")
+    playBtn.textContent="▶"
+    isPlaying=false
   }else{
-    yt("playVideo");startAnim();isPlaying=true
+    yt("playVideo")
+    cassette.classList.add("playing")
+    reelL.classList.add("spin")
+    reelR.classList.add("spin")
+    playBtn.textContent="⏸"
+    isPlaying=true
   }
 }
 function playSong(p,s){
@@ -207,15 +324,11 @@ function playSong(p,s){
   togglePlay()
 }
 
-/* ===== DRAG (DESKTOP + HP) ===== */
+/* ===== DRAG ===== */
 function bindDrag(el,p,s){
   el.draggable=true
   el.ondragstart=()=>dragData={p,s}
-
-  el.addEventListener("touchstart",()=>{
-    dragData={p,s};el.classList.add("dragging")
-  },{passive:true})
-
+  el.addEventListener("touchstart",()=>{dragData={p,s};el.classList.add("dragging")},{passive:true})
   el.addEventListener("touchend",e=>{
     el.classList.remove("dragging")
     const t=e.changedTouches[0]
@@ -227,19 +340,14 @@ function bindDrag(el,p,s){
     dragData=null
   })
 }
-function moveSong(fromP,fromS,toP){
-  if(toP<0||toP===fromP)return
-  const song=data[fromP].songs.splice(fromS,1)[0]
-  data[toP].songs.push(song)
+function moveSong(fp,fs,tp){
+  if(tp<0||tp===fp)return
+  data[tp].songs.push(data[fp].songs.splice(fs,1)[0])
   save();render()
 }
 
 /* ===== UI ===== */
-function toggleFolder(i){
-  data[i].open=!data[i].open
-  save();render()
-}
-
+function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 function render(){
   playlistsEl.innerHTML=""
   data.forEach((pl,pi)=>{
@@ -256,7 +364,6 @@ function render(){
       <div class="songs"></div>
     `
     const list=box.querySelector(".songs")
-
     pl.songs.forEach((s,si)=>{
       const row=document.createElement("div")
       row.className="song"
@@ -267,14 +374,8 @@ function render(){
       bindDrag(row,pi,si)
       list.appendChild(row)
     })
-
     box.ondragover=e=>e.preventDefault()
-    box.ondrop=()=>{
-      if(!dragData)return
-      moveSong(dragData.p,dragData.s,pi)
-      dragData=null
-    }
-
+    box.ondrop=()=>{if(dragData)moveSong(dragData.p,dragData.s,pi)}
     playlistsEl.appendChild(box)
   })
 }
@@ -289,39 +390,20 @@ async function addSong(){
   ytInput.value=""
   save();render()
 }
-function addPlaylist(){
-  data.push({name:"New Playlist",songs:[],open:true})
-  save();render()
-}
+function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save();render()}
 function renamePlaylist(i){
   const n=prompt("Rename playlist",data[i].name)
   if(n){data[i].name=n;save();render()}
 }
 function deletePlaylist(i){
   if(!confirm("Delete playlist?"))return
-  data.splice(i,1)
-  current.p=0;current.s=0
-  save();render()
+  data.splice(i,1);current={p:0,s:0};save();render()
 }
-function deleteSong(p,s){
-  data[p].songs.splice(s,1)
-  save();render()
-}
-function next(){
-  if(!data[current.p].songs.length)return
-  current.s=(current.s+1)%data[current.p].songs.length
-  loadedId=null;togglePlay()
-}
-function prev(){
-  if(!data[current.p].songs.length)return
-  current.s=Math.max(0,current.s-1)
-  loadedId=null;togglePlay()
-}
-function shuffle(){
-  if(!data[current.p].songs.length)return
-  current.s=Math.floor(Math.random()*data[current.p].songs.length)
-  loadedId=null;togglePlay()
-}
+function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
+function next(){if(!data[current.p].songs.length)return;current.s=(current.s+1)%data[current.p].songs.length;loadedId=null;togglePlay()}
+function prev(){if(!data[current.p].songs.length)return;current.s=Math.max(0,current.s-1);loadedId=null;togglePlay()}
+function shuffle(){if(!data[current.p].songs.length)return;current.s=Math.floor(Math.random()*data[current.p].songs.length);loadedId=null;togglePlay()}
 </script>
+
 </body>
 </html>
