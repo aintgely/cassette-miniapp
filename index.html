@@ -101,16 +101,53 @@ input{
   background:var(--blush);color:#fff;
 }
 
-/* CONTROLS */
+/* ===============================
+   CONTROLS — SMOOTH TUING SYSTEM
+=============================== */
 .controls{
-  display:flex;justify-content:center;gap:10px;margin-bottom:12px
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:12px;
 }
+
 .controls button{
   background:linear-gradient(180deg,var(--blush),#e07080);
-  color:#fff;border:none;height:34px;min-width:34px;
+  color:#fff;
+  border:none;
+
+  height:38px;
+  min-width:38px;
+  font-size:14px;
+
   border-radius:999px;
+  cursor:pointer;
+
+  box-shadow:0 6px 14px rgba(242,134,149,.35);
+
+  transition:
+    transform 420ms cubic-bezier(.22,1,.36,1),
+    box-shadow 420ms cubic-bezier(.22,1,.36,1),
+    filter 420ms ease;
 }
-.controls .play{height:42px;min-width:42px;font-size:16px}
+
+.controls button:hover{
+  transform:translateY(-2px) scale(1.045);
+  box-shadow:0 12px 26px rgba(242,134,149,.45);
+  filter:brightness(1.03);
+}
+
+.controls button:active{
+  transform:translateY(0) scale(.965);
+  box-shadow:0 5px 12px rgba(242,134,149,.3);
+  transition-duration:160ms;
+}
+
+.controls .play{
+  height:38px;
+  min-width:38px;
+  font-size:14px;
+}
 
 /* PLAYLIST */
 .playlists{margin-top:6px}
