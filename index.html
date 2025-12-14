@@ -113,6 +113,7 @@ input{
   align-items:center;
   font-size:13px;
   font-weight:500;
+  cursor:pointer;
 }
 .folder-actions button{
   background:none;
@@ -124,7 +125,14 @@ input{
 }
 .folder-actions button:hover{opacity:1}
 
-.songs{margin-top:6px}
+.songs{
+  display:none;
+  margin-top:6px;
+}
+.folder.open .songs{
+  display:block;
+}
+
 .song{
   display:flex;
   align-items:center;
@@ -147,7 +155,9 @@ input{
 }
 .song-delete:hover{opacity:1}
 
-.folder.drop-hover{outline:2px dashed rgba(242,134,149,.6)}
+.folder.drop-hover{
+  outline:2px dashed rgba(242,134,149,.6);
+}
 
 .credit{
   position:fixed;
@@ -235,6 +245,14 @@ function dropSong(tp){
   save();render()
 }
 
+/* TOGGLE PLAYLIST — ONLY ONE OPEN */
+function toggleFolder(i){
+  document.querySelectorAll(".folder").forEach((f,idx)=>{
+    if(idx===i) f.classList.toggle("open")
+    else f.classList.remove("open")
+  })
+}
+
 function render(){
   playlists.innerHTML=""
   data.forEach((p,pi)=>{
@@ -243,10 +261,10 @@ function render(){
       ondragover="event.preventDefault();this.classList.add('drop-hover')"
       ondragleave="this.classList.remove('drop-hover')"
       ondrop="this.classList.remove('drop-hover');dropSong(${pi})">
-      
-      <div class="folder-header">
+
+      <div class="folder-header" onclick="toggleFolder(${pi})">
         ${p.name}
-        <div class="folder-actions">
+        <div class="folder-actions" onclick="event.stopPropagation()">
           <button onclick="renamePlaylist(${pi})">✎</button>
           <button onclick="deletePlaylist(${pi})">🗑</button>
         </div>
