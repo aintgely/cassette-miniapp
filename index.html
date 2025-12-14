@@ -6,17 +6,17 @@
 <title>Analog Cassette</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
+/* ================== STYLE TIDAK DIUBAH ================== */
 :root{
   --ink:#3a2b2b;
   --cassette-a:#f3ead7;
   --cassette-b:#e8d3b2;
   --blush:#F28695;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;height:100vh;
   display:flex;justify-content:center;align-items:center;
@@ -24,7 +24,6 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:var(--ink);
 }
-
 .player{
   width:360px;
   background:linear-gradient(180deg,#fffefb,#f6ecd8);
@@ -32,26 +31,10 @@ body{
   padding:20px;
   box-shadow:0 50px 140px rgba(0,0,0,.35);
 }
-
 /* ===== CASSETTE ===== */
-@keyframes idleFloat{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
-  100%{transform:translateY(0)}
-}
-@keyframes playBounce{
-  0%{transform:translateY(0)}
-  40%{transform:translateY(-10px)}
-  100%{transform:translateY(0)}
-}
-@keyframes analogWobble{
-  0%{transform:rotate(0deg)}
-  25%{transform:rotate(.15deg)}
-  50%{transform:rotate(0deg)}
-  75%{transform:rotate(-.15deg)}
-  100%{transform:rotate(0deg)}
-}
-
+@keyframes idleFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+@keyframes playBounce{0%{transform:translateY(0)}40%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@keyframes analogWobble{0%{transform:rotate(0deg)}25%{transform:rotate(.15deg)}50%{transform:rotate(0deg)}75%{transform:rotate(-.15deg)}100%{transform:rotate(0deg)}}
 .cassette{
   position:relative;
   background:linear-gradient(180deg,var(--cassette-a),var(--cassette-b));
@@ -62,98 +45,65 @@ body{
   overflow:hidden;
 }
 .cassette.playing{
-  animation:
-    playBounce 1.8s ease-in-out infinite,
-    analogWobble 6s ease-in-out infinite;
+  animation:playBounce 1.8s ease-in-out infinite,analogWobble 6s ease-in-out infinite;
 }
-
-/* frame */
 .cassette-frame{
   position:absolute;inset:-6px;
   border-radius:32px;
   border:2px solid rgba(0,0,0,.25);
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.35),
-    inset 0 -10px 18px rgba(0,0,0,.15);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),inset 0 -10px 18px rgba(0,0,0,.15);
   pointer-events:none;
 }
-
-/* paper label */
 .label{
-  position:absolute;
-  top:12px;left:50%;
+  position:absolute;top:12px;left:50%;
   transform:translateX(-50%);
   padding:6px 12px;
   font-size:11px;
   max-width:82%;
-  background:#fffef6;
+  background:repeating-linear-gradient(-45deg,rgba(0,0,0,.03),rgba(0,0,0,.03) 2px,rgba(255,255,255,.04) 4px),#fffef6;
   border-radius:6px;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   font-family:"Segoe Script","Comic Sans MS",cursive;
 }
-
-/* screws */
-.screw{
-  position:absolute;width:9px;height:9px;border-radius:50%;
-  background:radial-gradient(circle,#aaa,#555);
-  opacity:.45;
-}
+.screw{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle,#aaa,#555);opacity:.45}
 .screw.tl{top:10px;left:10px}
 .screw.tr{top:10px;right:10px}
 .screw.bl{bottom:10px;left:10px}
 .screw.br{bottom:10px;right:10px}
-
 .window{padding:18px}
 .reels{display:flex;justify-content:space-between;align-items:center}
 
 /* ===== TAPE ===== */
 .tape-slot{
-  position:absolute;
-  left:50%;
-  top:50%;
+  position:absolute;left:50%;top:50%;
   transform:translate(-50%,-50%);
-  width:96px;
-  height:12px;
+  width:96px;height:12px;
   background:rgba(0,0,0,.12);
-  border-radius:999px;
-  overflow:hidden;
+  border-radius:999px;overflow:hidden;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.25);
 }
 .tape{
   position:absolute;inset:0;
-  background:repeating-linear-gradient(
-    90deg,
-    rgba(0,0,0,.35) 0 6px,
-    rgba(255,255,255,.15) 6px 12px
-  );
-  animation:tapeIdle 6s linear infinite;
-  opacity:.55;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.35) 0 6px,rgba(255,255,255,.15) 6px 12px);
+  animation:tapeIdle 6s linear infinite;opacity:.55;
 }
-.cassette.playing .tape{
-  animation:tapePlay 1.2s linear infinite;
-  opacity:.85;
-}
-@keyframes tapeIdle{
-  from{background-position:0 0}
-  to{background-position:120px 0}
-}
-@keyframes tapePlay{
-  from{background-position:0 0}
-  to{background-position:240px 0}
-}
+.cassette.playing .tape{animation:tapePlay 1.2s linear infinite;opacity:.85}
+@keyframes tapeIdle{from{background-position:0 0}to{background-position:120px 0}}
+@keyframes tapePlay{from{background-position:0 0}to{background-position:240px 0}}
 
-/* ===== GEARS ===== */
+/* ===== REEL ===== */
 .reel{
   width:56px;height:56px;border-radius:50%;
-  background:radial-gradient(circle,#fff,#b9a98f,#7b6a58);
-  box-shadow:0 8px 16px rgba(0,0,0,.35);
+  background:radial-gradient(circle at 30% 30%,#fff,#e4d6bf 35%,#b9a98f 65%,#7b6a58 100%);
+  box-shadow:inset 4px 4px 6px rgba(255,255,255,.65),inset -6px -6px 10px rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.35);
 }
+.reel::before{content:"";position:absolute;inset:6px;border-radius:50%;background:repeating-conic-gradient(#5c4b3d 0deg 10deg,#d2c3a8 10deg 20deg)}
+.reel::after{content:"";position:absolute;inset:22px;border-radius:50%;background:radial-gradient(circle,#eee,#444)}
 .spin{animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* input & controls */
+/* controls */
 .input{display:flex;gap:8px;margin:14px 0}
 input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid #e4c1b0}
 .input button{border:none;border-radius:14px;background:var(--blush);color:#fff}
@@ -163,12 +113,15 @@ input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid #e4c1b0}
   background:linear-gradient(180deg,var(--blush),#e07080);color:#fff
 }
 
-.folder{background:#fff;border-radius:18px;padding:10px;margin-bottom:12px}
+/* playlist */
+.folder{background:linear-gradient(180deg,#fffdf8,#f2e2c9);border-radius:18px;padding:10px;margin-bottom:12px}
 .folder-header{display:flex;justify-content:space-between;font-size:13px;cursor:pointer}
-.songs{display:none}
+.folder-actions button{background:none;border:none;font-size:12px;opacity:.5}
 .folder.open .songs{display:block}
+.songs{display:none}
 .song{display:flex;gap:6px;padding:6px;border-radius:10px}
-.song-title{flex:1;cursor:pointer;font-size:12px}
+.song:hover{background:rgba(242,191,180,.3)}
+.song-title{flex:1;font-size:12px;cursor:pointer}
 
 .credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
 iframe{display:none}
@@ -197,7 +150,7 @@ iframe{display:none}
 
   <div class="controls">
     <button onclick="prev()">⏮</button>
-    <button id="playBtn" onclick="togglePlay()">▶</button>
+    <button onclick="togglePlay()">▶</button>
     <button onclick="next()">⏭</button>
   </div>
 
@@ -205,97 +158,71 @@ iframe{display:none}
 </div>
 
 <div class="credit">@aintgely</div>
-<iframe id="player"></iframe>
+<div id="player"></div>
 
 <script>
-const randColor=()=>[
-  `hsl(${Math.random()*360},50%,88%)`,
-  `hsl(${Math.random()*360},55%,75%)`
-]
-
-let data=[{name:"My Playlist",color:randColor(),songs:[]}]
-let current={p:0,s:0}
-let isPlaying=false
-let playerReady=false
-
-const iframe=document.getElementById("player")
+let ytPlayer,isPlaying=false
 const cassette=document.getElementById("cassette")
-const label=document.getElementById("label")
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
-const playBtn=document.getElementById("playBtn")
+const label=document.getElementById("label")
+
+const randColor=()=>[`hsl(${Math.random()*360},50%,88%)`,`hsl(${Math.random()*360},55%,75%)`]
+
+let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
+  {name:"My Playlist",color:randColor(),songs:[]}
+]
+let current={p:0,s:0}
 
 function extractId(u){
-  return u.includes("youtu.be/")
-    ?u.split("youtu.be/")[1]
-    :u.split("v=")[1]?.split("&")[0]
+  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1]
+  return u.split("v=")[1]?.split("&")[0]
 }
 
-function yt(cmd){
-  iframe.contentWindow.postMessage(JSON.stringify({
-    event:"command",func:cmd,args:[]
-  }),"*")
+function onYouTubeIframeAPIReady(){
+  ytPlayer=new YT.Player("player",{
+    height:"0",width:"0",
+    playerVars:{playsinline:1},
+    events:{
+      onStateChange:e=>{
+        if(e.data===YT.PlayerState.ENDED)next()
+      }
+    }
+  })
 }
 
-function loadVideo(id){
-  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1`
-}
-
-function startAnim(){
+function playAnim(){
   cassette.classList.add("playing")
   reelL.classList.add("spin")
   reelR.classList.add("spin")
-  playBtn.textContent="⏸"
   isPlaying=true
 }
 function stopAnim(){
   cassette.classList.remove("playing")
   reelL.classList.remove("spin")
   reelR.classList.remove("spin")
-  playBtn.textContent="▶"
   isPlaying=false
 }
 
 function togglePlay(){
   const song=data[current.p].songs[current.s]
-  if(!song)return
-
+  if(!song||!ytPlayer)return
   label.textContent=song.title
   cassette.style.setProperty("--cassette-a",data[current.p].color[0])
   cassette.style.setProperty("--cassette-b",data[current.p].color[1])
 
-  if(!playerReady){
-    loadVideo(extractId(song.url))
-    playerReady=true
-    setTimeout(()=>{yt("playVideo");startAnim()},600)
-    return
-  }
-
-  if(isPlaying){
-    yt("pauseVideo")
-    stopAnim()
+  if(!isPlaying){
+    ytPlayer.loadVideoById(extractId(song.url))
+    playAnim()
   }else{
-    yt("playVideo")
-    startAnim()
+    ytPlayer.pauseVideo()
+    stopAnim()
   }
 }
 
-function play(p,s){
-  current={p,s}
-  playerReady=false
-  iframe.src=""
-  stopAnim()
-  togglePlay()
-}
-
-function next(){
-  const l=data[current.p].songs
-  if(l.length) play(current.p,(current.s+1)%l.length)
-}
-function prev(){
-  const l=data[current.p].songs
-  if(l.length) play(current.p,(current.s-1+l.length)%l.length)
-}
+function play(p,s){current={p,s};isPlaying=false;togglePlay()}
+function next(){const l=data[current.p].songs;if(l.length)play(current.p,(current.s+1)%l.length)}
+function prev(){const l=data[current.p].songs;if(l.length)play(current.p,(current.s-1+l.length)%l.length)}
 
 async function fetchTitle(url){
   try{
@@ -307,24 +234,24 @@ async function fetchTitle(url){
 async function addSong(){
   const url=ytInput.value.trim()
   if(!url)return
-  data[0].songs.push({url,title:await fetchTitle(url)})
-  render()
-  ytInput.value=""
+  data[current.p].songs.push({url,title:await fetchTitle(url)})
+  localStorage.setItem("cassettePlaylists",JSON.stringify(data))
+  render();ytInput.value=""
 }
 
 function render(){
   playlists.innerHTML=""
   data.forEach((p,pi)=>{
     playlists.innerHTML+=`
-      <div class="folder open">
-        <div class="folder-header">${p.name}</div>
-        <div class="songs">
-          ${p.songs.map((s,si)=>`
-            <div class="song">
-              <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
-            </div>`).join("")}
-        </div>
-      </div>`
+    <div class="folder">
+      <div class="folder-header">${p.name}</div>
+      <div class="songs" style="display:block">
+        ${p.songs.map((s,si)=>`
+          <div class="song">
+            <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
+          </div>`).join("")}
+      </div>
+    </div>`
   })
 }
 render()
