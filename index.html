@@ -6,6 +6,7 @@
 <title>Analog Cassette</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
 :root{
@@ -86,14 +87,7 @@ body{
   padding:6px 12px;
   font-size:11px;
   max-width:82%;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(0,0,0,.03),
-      rgba(0,0,0,.03) 2px,
-      rgba(255,255,255,.04) 4px
-    ),
-    #fffef6;
+  background:#fffef6;
   border-radius:6px;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
   white-space:nowrap;
@@ -127,17 +121,15 @@ body{
   background:rgba(0,0,0,.12);
   border-radius:999px;
   overflow:hidden;
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.25);
 }
 .tape{
   position:absolute;
   inset:0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(0,0,0,.35) 0 6px,
-      rgba(255,255,255,.15) 6px 12px
-    );
+  background:repeating-linear-gradient(
+    90deg,
+    rgba(0,0,0,.35) 0 6px,
+    rgba(255,255,255,.15) 6px 12px
+  );
   animation:tapeIdle 6s linear infinite;
   opacity:.55;
 }
@@ -145,61 +137,16 @@ body{
   animation:tapePlay 1.2s linear infinite;
   opacity:.85;
 }
-@keyframes tapeIdle{
-  from{background-position:0 0}
-  to{background-position:120px 0}
-}
-@keyframes tapePlay{
-  from{background-position:0 0}
-  to{background-position:240px 0}
-}
+@keyframes tapeIdle{from{background-position:0 0}to{background-position:120px 0}}
+@keyframes tapePlay{from{background-position:0 0}to{background-position:240px 0}}
 
 /* ===== 3D GEAR ===== */
 .reel{
   width:56px;height:56px;border-radius:50%;
-  position:relative;
-  background:
-    radial-gradient(circle at 30% 30%,
-      #ffffff,
-      #e4d6bf 35%,
-      #b9a98f 65%,
-      #7b6a58 100%);
-  box-shadow:
-    inset 4px 4px 6px rgba(255,255,255,.65),
-    inset -6px -6px 10px rgba(0,0,0,.35),
-    0 8px 16px rgba(0,0,0,.35);
-  transform-style:preserve-3d;
+  background:radial-gradient(circle,#fff,#7b6a58);
 }
-.reel::before{
-  content:"";
-  position:absolute;
-  inset:6px;border-radius:50%;
-  background:repeating-conic-gradient(
-    #5c4b3d 0deg 10deg,
-    #d2c3a8 10deg 20deg
-  );
-}
-.reel::after{
-  content:"";
-  position:absolute;
-  inset:22px;border-radius:50%;
-  background:radial-gradient(circle,#eee,#444);
-  transform:translateZ(6px);
-}
-
-/* opposite spin */
-.spin{animation-duration:1.1s;animation-timing-function:linear;animation-iteration-count:infinite}
-#reelL.spin{animation-name:spinLeft}
-#reelR.spin{animation-name:spinRight}
-@keyframes spinLeft{
-  from{transform:rotateZ(0deg) rotateX(12deg)}
-  to{transform:rotateZ(-360deg) rotateX(12deg)}
-}
-@keyframes spinRight{
-  from{transform:rotateZ(0deg) rotateX(12deg)}
-  to{transform:rotateZ(360deg) rotateX(12deg)}
-}
-.cassette.playing .spin{animation-duration:.9s}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* input & controls */
 .input{display:flex;gap:8px;margin:14px 0}
@@ -212,21 +159,14 @@ input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid #e4c1b0}
 }
 
 /* playlists */
-.folder{background:linear-gradient(180deg,#fffdf8,#f2e2c9);border-radius:18px;padding:10px;margin-bottom:12px}
+.folder{background:#fffdf8;border-radius:18px;padding:10px;margin-bottom:12px}
 .folder-header{display:flex;justify-content:space-between;font-size:13px;cursor:pointer}
-.folder-actions button{background:none;border:none;font-size:12px;opacity:.5;margin-left:6px}
-.folder-actions button:hover{opacity:1}
 .songs{display:none;margin-top:6px}
 .folder.open .songs{display:block}
 .song{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:10px}
-.song:hover{background:rgba(242,191,180,.3)}
 .song-title{flex:1;font-size:12px;cursor:pointer}
-.song-delete{background:none;border:none;font-size:11px;opacity:.4}
-.song-delete:hover{opacity:1}
-.folder.drop-hover{outline:2px dashed rgba(242,134,149,.6)}
 
 .credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
-iframe{display:none}
 </style>
 </head>
 
@@ -261,11 +201,10 @@ iframe{display:none}
   </div>
 
   <div id="playlists"></div>
-  <div onclick="addPlaylist()" style="text-align:center;opacity:.6;cursor:pointer">＋ Add Playlist</div>
 </div>
 
 <div class="credit">@aintgely</div>
-<iframe id="player" allow="autoplay"></iframe>
+<div id="player"></div>
 
 <script>
 const randColor=()=>[
@@ -276,18 +215,34 @@ const randColor=()=>[
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
   {name:"My Playlist",color:randColor(),songs:[]}
 ]
-let current={p:0,s:0},dragSong=null,isPlaying=false,playerReady=false
+let current={p:0,s:0},isPlaying=false
 
-const iframe=player,cassette=document.getElementById("cassette")
+const cassette=document.getElementById("cassette")
 const label=document.getElementById("label")
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
 const playBtn=document.getElementById("playBtn")
 
-function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
-function extractId(u){return u.includes("youtu.be/")?u.split("youtu.be/")[1]:u.split("v=")[1]?.split("&")[0]}
-window.addEventListener("message",e=>{if(e.data?.info===0)next()})
-function loadVideo(id){iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`;setTimeout(()=>playerReady=true,1000)}
+let ytPlayer
+
+function onYouTubeIframeAPIReady(){
+  ytPlayer=new YT.Player("player",{
+    height:"0",
+    width:"0",
+    playerVars:{playsinline:1},
+    events:{
+      onStateChange:e=>{
+        if(e.data===YT.PlayerState.ENDED) next()
+      }
+    }
+  })
+}
+
+function extractId(u){
+  return u.includes("youtu.be/")
+    ? u.split("youtu.be/")[1]
+    : u.split("v=")[1]?.split("&")[0]
+}
 
 function startAnim(){
   cassette.classList.add("playing")
@@ -303,72 +258,58 @@ function stopAnim(){
   playBtn.textContent="▶"
   isPlaying=false
 }
+
 function togglePlay(){
   const song=data[current.p].songs[current.s]
-  if(!song)return
+  if(!song||!ytPlayer)return
   label.textContent=song.title
   cassette.style.setProperty("--cassette-a",data[current.p].color[0])
   cassette.style.setProperty("--cassette-b",data[current.p].color[1])
-  if(!playerReady){loadVideo(extractId(song.url));startAnim();return}
-  iframe.contentWindow.postMessage(JSON.stringify({event:"command",func:isPlaying?"pauseVideo":"playVideo"}),"*")
-  isPlaying?stopAnim():startAnim()
+  if(!isPlaying){
+    ytPlayer.loadVideoById(extractId(song.url))
+    startAnim()
+  }else{
+    ytPlayer.pauseVideo()
+    stopAnim()
+  }
 }
-function play(p,s){current={p,s};playerReady=false;iframe.src="";togglePlay()}
+
+function play(p,s){current={p,s};isPlaying=false;togglePlay()}
 function next(){const l=data[current.p].songs;if(l.length){current.s=(current.s+1)%l.length;play(current.p,current.s)}}
 function prev(){const l=data[current.p].songs;if(l.length){current.s=(current.s-1+l.length)%l.length;play(current.p,current.s)}}
 
 async function fetchTitle(url){
-  try{const r=await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);return (await r.json()).title}
-  catch{return"Unknown Track"}
+  try{
+    const r=await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
+    return (await r.json()).title
+  }catch{return"Unknown Track"}
 }
+
 async function addSong(){
   const url=ytInput.value.trim()
   if(!url)return
   data[current.p].songs.push({url,title:await fetchTitle(url)})
-  save();render();ytInput.value=""
+  localStorage.setItem("cassettePlaylists",JSON.stringify(data))
+  render();ytInput.value=""
 }
-function addPlaylist(){
-  const name=prompt("Playlist name?")
-  if(!name)return
-  data.push({name,color:randColor(),songs:[]})
-  save();render()
-}
-function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(!n)return;data[i].name=n;save();render()}
-function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);save();render()}
-function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
-function dragStart(p,s){dragSong={p,s}}
-function dropSong(tp){
-  if(!dragSong)return
-  const song=data[dragSong.p].songs.splice(dragSong.s,1)[0]
-  data[tp].songs.push(song)
-  dragSong=null;save();render()
-}
+
 function render(){
   playlists.innerHTML=""
   data.forEach((p,pi)=>{
     playlists.innerHTML+=`
-    <div class="folder"
-      ondragover="event.preventDefault();this.classList.add('drop-hover')"
-      ondragleave="this.classList.remove('drop-hover')"
-      ondrop="this.classList.remove('drop-hover');dropSong(${pi})">
-      <div class="folder-header" onclick="this.parentNode.classList.toggle('open')">
-        ${p.name}
-        <div class="folder-actions" onclick="event.stopPropagation()">
-          <button onclick="renamePlaylist(${pi})">✎</button>
-          <button onclick="deletePlaylist(${pi})">🗑</button>
+      <div class="folder open">
+        <div class="folder-header">${p.name}</div>
+        <div class="songs">
+          ${p.songs.map((s,si)=>`
+            <div class="song">
+              <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
+            </div>`).join("")}
         </div>
-      </div>
-      <div class="songs">
-        ${p.songs.map((s,si)=>`
-          <div class="song" draggable="true" ondragstart="dragStart(${pi},${si})">
-            <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
-            <button class="song-delete" onclick="deleteSong(${pi},${si})">✕</button>
-          </div>`).join("")}
-      </div>
-    </div>`
+      </div>`
   })
 }
 render()
 </script>
+
 </body>
 </html>
