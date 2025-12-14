@@ -9,15 +9,18 @@
 
 <style>
 /* ===============================
-   CLASSY PALETTE
+   BLUSHING SANDS PALETTE
 =============================== */
 :root{
-  --ink:#1c1b1a;
-  --paper:#fbfaf8;
-  --champagne:#e7dcc6;
-  --linen:#f3efe8;
-  --gold:#d8c9a5;
-  --shadow:rgba(0,0,0,.18);
+  --ink:#3a2b2b;
+
+  --blush:#F28695;
+  --soft-blush:#F2BFB4;
+  --sand:#F1CCA6;
+  --ivory:#F2E6B8;
+
+  --paper:#fffdf9;
+  --shadow:rgba(120,70,70,.18);
 }
 
 *{box-sizing:border-box}
@@ -29,7 +32,11 @@ body{
   justify-content:center;
   align-items:center;
   background:
-    radial-gradient(circle at top, #ffffff 0%, #ece7df 45%, #d6cfc3 100%);
+    radial-gradient(circle at top,
+      #F2E6B8 0%,
+      #F1CCA6 35%,
+      #F2BFB4 65%,
+      #F28695 100%);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:var(--ink);
 }
@@ -39,11 +46,12 @@ body{
 =============================== */
 .player{
   width:360px;
-  background:linear-gradient(180deg,var(--paper),var(--linen));
+  background:
+    linear-gradient(180deg,#fffefb,var(--ivory));
   border-radius:32px;
   padding:20px;
   box-shadow:
-    0 50px 140px rgba(0,0,0,.35),
+    0 50px 140px rgba(242,134,149,.45),
     inset 0 0 0 1px rgba(255,255,255,.6);
 }
 
@@ -53,40 +61,41 @@ body{
 .cassette{
   position:relative;
   background:
-    linear-gradient(180deg,#ffffff,#ece7dd);
+    linear-gradient(180deg,var(--ivory),var(--sand));
   border-radius:26px;
   padding:20px;
   margin-bottom:16px;
   box-shadow:
-    inset 0 0 0 1px rgba(180,170,150,.45),
-    inset 0 -10px 20px rgba(0,0,0,.08),
-    0 18px 40px rgba(0,0,0,.25);
+    inset 0 0 0 1px rgba(242,191,180,.65),
+    inset 0 -10px 22px rgba(242,134,149,.25),
+    0 22px 55px rgba(242,134,149,.35);
   overflow:hidden;
 }
 
-/* soft halo glow */
+/* glow halo */
 .cassette::before{
   content:"";
   position:absolute;
-  inset:-30%;
+  inset:-35%;
   background:
     radial-gradient(circle,
-      rgba(255,255,255,.55) 0%,
-      rgba(255,255,255,.15) 35%,
-      transparent 65%);
-  opacity:.65;
+      rgba(242,230,184,.75) 0%,
+      rgba(242,191,180,.45) 35%,
+      rgba(242,134,149,.25) 55%,
+      transparent 70%);
+  opacity:.85;
   pointer-events:none;
 }
 
-/* grain dust */
+/* dust grain */
 .cassette::after{
   content:"";
   position:absolute;
   inset:-40%;
   background-image:
     repeating-radial-gradient(circle,
-      rgba(0,0,0,.045) 0,
-      rgba(0,0,0,.045) 1px,
+      rgba(0,0,0,.04) 0,
+      rgba(0,0,0,.04) 1px,
       transparent 1px,
       transparent 3px);
   opacity:.18;
@@ -96,7 +105,6 @@ body{
 
 @keyframes dust{to{transform:translateY(140px)}}
 
-/* subtle wobble when playing */
 .cassette.playing{
   animation:wobble 4s ease-in-out infinite;
 }
@@ -109,11 +117,12 @@ body{
    WINDOW & REELS
 =============================== */
 .window{
-  background:linear-gradient(180deg,#fff,#f3f0ea);
+  background:
+    linear-gradient(180deg,#fffdf8,var(--ivory));
   border-radius:18px;
   padding:18px;
   box-shadow:
-    inset 0 0 0 1px rgba(210,200,180,.6);
+    inset 0 0 0 1px rgba(241,204,166,.6);
 }
 
 .reels{
@@ -129,11 +138,11 @@ body{
   background:
     radial-gradient(circle at 30% 30%,
       #ffffff 0%,
-      #f0ede6 40%,
-      #ddd6c7 100%);
+      var(--ivory) 45%,
+      var(--sand) 100%);
   box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.6),
-    0 4px 10px rgba(0,0,0,.25);
+    inset 0 0 0 2px rgba(255,255,255,.7),
+    0 4px 12px rgba(242,134,149,.35);
 }
 
 .spin{animation:spin 1.15s linear infinite}
@@ -152,7 +161,7 @@ input{
   flex:1;
   padding:10px 12px;
   border-radius:16px;
-  border:1px solid rgba(160,150,130,.6);
+  border:1px solid rgba(242,191,180,.8);
   background:#fff;
   font-size:13px;
   outline:none;
@@ -162,9 +171,10 @@ input{
   border:none;
   border-radius:14px;
   padding:0 12px;
-  background:var(--ink);
+  background:var(--blush);
   color:#fff;
   cursor:pointer;
+  box-shadow:0 6px 14px rgba(242,134,149,.35);
 }
 
 /* ===============================
@@ -179,7 +189,8 @@ input{
 }
 
 .controls button{
-  background:linear-gradient(180deg,#2b2a28,#1c1b1a);
+  background:
+    linear-gradient(180deg,var(--blush),#e07080);
   color:#fff;
   border:none;
   height:34px;
@@ -189,8 +200,8 @@ input{
   font-size:13px;
   cursor:pointer;
   box-shadow:
-    0 6px 14px rgba(0,0,0,.35),
-    inset 0 0 0 1px rgba(255,255,255,.08);
+    0 8px 18px rgba(242,134,149,.45),
+    inset 0 0 0 1px rgba(255,255,255,.25);
 }
 
 .controls .play{
@@ -199,7 +210,7 @@ input{
   font-size:16px;
 }
 
-.controls .mute{opacity:.7}
+.controls .mute{opacity:.75}
 
 /* ===============================
    PLAYLISTS
@@ -207,13 +218,14 @@ input{
 .playlists{margin-top:6px}
 
 .folder{
-  background:linear-gradient(180deg,#fff,#f2eee7);
+  background:
+    linear-gradient(180deg,#fffdf9,var(--ivory));
   border-radius:18px;
   padding:12px;
   margin-bottom:12px;
   box-shadow:
-    0 6px 18px rgba(0,0,0,.15),
-    inset 0 0 0 1px rgba(200,190,170,.55);
+    0 6px 18px rgba(242,134,149,.25),
+    inset 0 0 0 1px rgba(241,204,166,.55);
 }
 
 .folder-header{
@@ -249,13 +261,10 @@ input{
   font-size:12px;
 }
 .song:hover{
-  background:rgba(0,0,0,.05);
+  background:rgba(242,191,180,.35);
 }
 
-.song-title{
-  flex:1;
-  cursor:pointer;
-}
+.song-title{flex:1;cursor:pointer}
 
 .song-delete{
   background:none;
@@ -269,14 +278,11 @@ input{
 .add-playlist{
   text-align:center;
   font-size:12px;
-  opacity:.55;
+  opacity:.6;
   cursor:pointer;
   margin-top:6px;
 }
 
-/* ===============================
-   IFRAME HIDDEN
-=============================== */
 iframe{display:none}
 </style>
 </head>
@@ -383,7 +389,6 @@ function pause(){
 }
 
 function togglePlay(){isPlaying?pause():startPlay()}
-
 function toggleMute(){
   muted=!muted
   muteBtn.textContent=muted?"🔈":"🔇"
