@@ -126,7 +126,6 @@ iframe{display:none}
 <iframe id="player" allow="autoplay"></iframe>
 
 <script>
-/* ===== DATA ===== */
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
   {name:"My Playlist",songs:[],open:false}
 ]
@@ -147,6 +146,20 @@ function extractId(u){
   return u.split("v=")[1]?.split("&")[0]
 }
 
+/* ===== ambil judul YouTube ===== */
+async function fetchTitle(url){
+  try{
+    const res=await fetch(
+      "https://www.youtube.com/oembed?url="+
+      encodeURIComponent(url)+"&format=json"
+    )
+    const j=await res.json()
+    return j.title
+  }catch{
+    return "Unknown Title"
+  }
+}
+
 /* ===== PLAYER ===== */
 function loadVideo(id){
   iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`
@@ -161,10 +174,6 @@ function startAnim(){
   reelL.classList.add("spin");reelR.classList.add("spin")
   playBtn.textContent="⏸"
 }
-function stopAnim(){
-  reelL.classList.remove("spin");reelR.classList.remove("spin")
-  playBtn.textContent="▶"
-}
 function togglePlay(){
   const s=data[current.p]?.songs[current.s]
   if(!s)return
@@ -173,14 +182,13 @@ function togglePlay(){
 }
 function playSong(p,s){current={p,s};togglePlay()}
 
-/* ===== DRAG (DESKTOP + TOUCH) ===== */
+/* ===== DRAG ===== */
 function makeDraggable(el,p,s){
   el.draggable=true
   el.ondragstart=()=>dragged={p,s}
 
   el.addEventListener("touchstart",()=>{
-    dragged={p,s}
-    el.classList.add("dragging")
+    dragged={p,s};el.classList.add("dragging")
   },{passive:true})
 
   el.addEventListener("touchend",e=>{
@@ -199,7 +207,7 @@ function makeDraggable(el,p,s){
   })
 }
 
-/* ===== PLAYLIST UI ===== */
+/* ===== PLAYLIST ===== */
 function toggleFolder(i){
   data[i].open=!data[i].open
   save();render()
@@ -231,25 +239,17 @@ function render(){
       makeDraggable(row,pi,si)
       list.appendChild(row)
     })
-
-    box.ondragover=e=>e.preventDefault()
-    box.ondrop=()=>{
-      if(!dragged||dragged.p===pi)return
-      const song=data[dragged.p].songs.splice(dragged.s,1)[0]
-      data[pi].songs.push(song)
-      save();render()
-    }
-
     playlistsEl.appendChild(box)
   })
 }
 render()
 
 /* ===== CRUD ===== */
-function addSong(){
+async function addSong(){
   const u=ytInput.value.trim()
   if(!u)return
-  data[current.p].songs.push({url:u,title:"YouTube Track"})
+  const title=await fetchTitle(u)
+  data[current.p].songs.push({url:u,title})
   ytInput.value=""
   save();render()
 }
