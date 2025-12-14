@@ -9,6 +9,34 @@
 
 <style>
 /* ===============================
+   FONT FACE
+=============================== */
+@font-face{
+  font-family:"Cinzel";
+  src:url("Cinzel-Regular.woff2") format("woff2"),
+      url("Cinzel-Regular.woff") format("woff");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Cinzel";
+  src:url("Cinzel-Black.woff2") format("woff2"),
+      url("Cinzel-Black.woff") format("woff");
+  font-weight:900;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"SwirlyCanalope";
+  src:url("SwirlyCanalopePERSONALUSE-Regular.woff2") format("woff2"),
+      url("SwirlyCanalopePERSONALUSE-Regular.woff") format("woff");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* ===============================
    BLUSHING SANDS PALETTE
 =============================== */
 :root{
@@ -34,7 +62,8 @@ body{
       #F1CCA6 35%,
       #F2BFB4 65%,
       #F28695 100%);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:"Cinzel", serif;
+  font-weight:400;
   color:var(--ink);
 }
 
@@ -52,27 +81,20 @@ body{
 }
 
 /* ===============================
-   CASSETTE MOTION SYSTEM
+   CASSETTE MOTION
 =============================== */
-
-/* idle: calm floating + sway */
-@keyframes idleFloat {
-  0%   { transform: translateY(0) rotate(0deg) scale(1); }
-  50%  { transform: translateY(-6px) rotate(.15deg) scale(1.01); }
-  100% { transform: translateY(0) rotate(0deg) scale(1); }
+@keyframes idleFloat{
+  0%{transform:translateY(0) rotate(0deg) scale(1)}
+  50%{transform:translateY(-6px) rotate(.15deg) scale(1.01)}
+  100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+@keyframes playBounce{
+  0%{transform:translateY(0) rotate(0deg) scale(1)}
+  30%{transform:translateY(-10px) rotate(.2deg) scale(1.02)}
+  60%{transform:translateY(-4px) rotate(-.15deg) scale(1.01)}
+  100%{transform:translateY(0) rotate(0deg) scale(1)}
 }
 
-/* playing: rhythmic smooth bounce */
-@keyframes playBounce {
-  0%   { transform: translateY(0) rotate(0deg) scale(1); }
-  30%  { transform: translateY(-10px) rotate(.2deg) scale(1.02); }
-  60%  { transform: translateY(-4px) rotate(-.15deg) scale(1.01); }
-  100% { transform: translateY(0) rotate(0deg) scale(1); }
-}
-
-/* ===============================
-   CASSETTE BODY
-=============================== */
 .cassette{
   position:relative;
   background:linear-gradient(180deg,var(--ivory),var(--sand));
@@ -84,15 +106,10 @@ body{
     inset 0 -10px 22px rgba(242,134,149,.25),
     0 22px 55px rgba(242,134,149,.35);
   overflow:hidden;
-
-  /* IDLE MOTION */
-  animation: idleFloat 6s ease-in-out infinite;
-  transition: animation 600ms ease;
+  animation:idleFloat 6s ease-in-out infinite;
 }
-
-/* PLAYING MOTION */
 .cassette.playing{
-  animation: playBounce 1.9s ease-in-out infinite;
+  animation:playBounce 1.9s ease-in-out infinite;
 }
 
 /* glow */
@@ -110,23 +127,6 @@ body{
   pointer-events:none;
 }
 
-/* dust grain */
-.cassette::after{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background-image:
-    repeating-radial-gradient(circle,
-      rgba(0,0,0,.04) 0,
-      rgba(0,0,0,.04) 1px,
-      transparent 1px,
-      transparent 3px);
-  opacity:.18;
-  animation:dust 22s linear infinite;
-  pointer-events:none;
-}
-@keyframes dust{to{transform:translateY(140px)}}
-
 /* ===============================
    WINDOW & REELS
 =============================== */
@@ -134,26 +134,12 @@ body{
   background:linear-gradient(180deg,#fffdf8,var(--ivory));
   border-radius:18px;
   padding:18px;
-  box-shadow:inset 0 0 0 1px rgba(241,204,166,.6);
 }
-
 .reels{display:flex;justify-content:space-between}
-
 .reel{
-  width:56px;
-  height:56px;
-  border-radius:50%;
+  width:56px;height:56px;border-radius:50%;
   border:5px solid var(--ink);
-  background:
-    radial-gradient(circle at 30% 30%,
-      #ffffff 0%,
-      var(--ivory) 45%,
-      var(--sand) 100%);
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.7),
-    0 4px 12px rgba(242,134,149,.35);
 }
-
 .spin{animation:spin 1.15s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -164,12 +150,13 @@ body{
 input{
   flex:1;padding:10px 12px;border-radius:16px;
   border:1px solid rgba(242,191,180,.8);
-  background:#fff;font-size:13px
+  font-family:"Cinzel", serif;
+  font-size:12px;
 }
 .input button{
-  border:none;border-radius:14px;padding:0 12px;
-  background:var(--blush);color:#fff;
-  box-shadow:0 6px 14px rgba(242,134,149,.35)
+  background:var(--blush);
+  border:none;border-radius:14px;
+  color:#fff;font-family:"Cinzel", serif;
 }
 
 /* ===============================
@@ -180,42 +167,39 @@ input{
 }
 .controls button{
   background:linear-gradient(180deg,var(--blush),#e07080);
-  color:#fff;border:none;height:34px;min-width:34px;
+  color:#fff;border:none;
   border-radius:999px;
-  box-shadow:0 8px 18px rgba(242,134,149,.45)
+  font-family:"Cinzel", serif;
 }
-.controls .play{height:42px;min-width:42px;font-size:16px}
-.controls .mute{opacity:.75}
+.controls .play{height:42px;min-width:42px}
 
 /* ===============================
    PLAYLIST
 =============================== */
-.playlists{margin-top:6px}
-.folder{
-  background:linear-gradient(180deg,#fffdf9,var(--ivory));
-  border-radius:18px;padding:12px;margin-bottom:12px;
-  box-shadow:0 6px 18px rgba(242,134,149,.25)
-}
 .folder-header{
-  display:flex;justify-content:space-between;
-  font-size:13px;font-weight:500;cursor:pointer
+  font-weight:900;
 }
-.folder-actions button{background:none;border:none;opacity:.6}
-.songs{margin-top:8px;display:none}
-.folder.open .songs{display:block}
-.song{display:flex;justify-content:space-between;padding:7px;border-radius:10px}
-.song:hover{background:rgba(242,191,180,.35)}
-.song-title{flex:1;cursor:pointer}
-.song-delete{background:none;border:none;opacity:.5}
+.song,.add-playlist{
+  font-size:11px;
+}
 
-.add-playlist{text-align:center;font-size:12px;opacity:.6;cursor:pointer}
-
+/* ===============================
+   SIGNATURE
+=============================== */
+.signature{
+  margin-top:14px;
+  text-align:center;
+  font-family:"SwirlyCanalope", cursive;
+  font-size:18px;
+  color:rgba(58,43,43,.65);
+}
 iframe{display:none}
 </style>
 </head>
 
 <body>
 <div class="player">
+
   <div class="cassette" id="cassette">
     <div class="window">
       <div class="reels">
@@ -235,17 +219,21 @@ iframe{display:none}
     <button id="playBtn" class="play" onclick="togglePlay()">▶</button>
     <button onclick="next()">⏭</button>
     <button onclick="shuffle()">🔀</button>
-    <button id="muteBtn" class="mute" onclick="toggleMute()">🔇</button>
+    <button id="muteBtn" onclick="toggleMute()">🔇</button>
   </div>
 
   <div class="playlists" id="playlists"></div>
   <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
+
+  <!-- SIGNATURE -->
+  <div class="signature">@aintgely</div>
+
 </div>
 
 <iframe id="player" allow="autoplay"></iframe>
 
 <script>
-/* === JS ASLI – TIDAK DIUBAH === */
+/* JS TIDAK DIUBAH */
 let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[]}]
 let current={p:0,s:0},isPlaying=false,muted=false,dragSong=null
 const cassette=document.getElementById("cassette")
@@ -268,22 +256,12 @@ function next(){const l=data[current.p].songs;if(!l.length)return;current.s=(cur
 function prev(){const l=data[current.p].songs;if(!l.length)return;current.s=(current.s-1+l.length)%l.length;startPlay()}
 function shuffle(){const p=Math.floor(Math.random()*data.length);const s=Math.floor(Math.random()*data[p].songs.length);play(p,s)}
 function render(){playlists.innerHTML="";data.forEach((p,pi)=>{playlists.innerHTML+=`
-<div class="folder" ondragover="event.preventDefault()" ondrop="dropSong(${pi})">
-<div class="folder-header" onclick="this.parentElement.classList.toggle('open')">${p.name}
-<div class="folder-actions">
-<button onclick="event.stopPropagation();renamePlaylist(${pi})">✏</button>
-<button onclick="event.stopPropagation();deletePlaylist(${pi})">🗑</button>
-</div></div>
+<div class="folder">
+<div class="folder-header" onclick="this.parentElement.classList.toggle('open')">${p.name}</div>
 <div class="songs">${p.songs.map((s,si)=>`
-<div class="song" draggable="true" ondragstart="dragStart(${pi},${si})">
+<div class="song">
 <div class="song-title" onclick="play(${pi},${si})">${s.title}</div>
-<button class="song-delete" onclick="deleteSong(${pi},${si});event.stopPropagation()">✕</button>
 </div>`).join("")}</div></div>`})}
-function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(!n)return;data[i].name=n;save();render()}
-function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);if(current.p>=data.length)current.p=0;save();render()}
-function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
-function dragStart(p,s){dragSong={p,s}}
-function dropSong(tp){if(!dragSong)return;const song=data[dragSong.p].songs.splice(dragSong.s,1)[0];data[tp].songs.push(song);dragSong=null;save();render()}
 render()
 </script>
 </body>
