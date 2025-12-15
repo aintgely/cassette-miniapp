@@ -200,7 +200,6 @@ input{
 
   <div class="cassette" onclick="togglePanel()">
     <span class="shine"></span>
-
     <span class="screw tl"></span>
     <span class="screw tr"></span>
     <span class="screw bl"></span>
@@ -236,12 +235,9 @@ input{
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
   </div>
-
 </div>
 
 <div class="credit">@aintgely</div>
-
-<!-- YOUTUBE PLAYER (API RESMI) -->
 <div id="player"></div>
 
 <script>
@@ -249,12 +245,9 @@ input{
 let ytPlayer=null
 function onYouTubeIframeAPIReady(){
   ytPlayer=new YT.Player("player",{
-    height:"0",
-    width:"0",
+    height:"0",width:"0",
     playerVars:{autoplay:1,controls:0,rel:0,playsinline:1},
-    events:{onStateChange:e=>{
-      if(e.data===YT.PlayerState.ENDED)next()
-    }}
+    events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)next()}}
   })
 }
 
@@ -263,8 +256,7 @@ let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
   {name:"My Playlist",songs:[],open:true}
 ]
 let current={p:0,s:0}
-let loadedId=null
-let isPlaying=false
+let loadedId=null,isPlaying=false
 let dragData=null
 
 const reelL=document.getElementById("reelL")
@@ -290,13 +282,7 @@ async function fetchTitle(url){
 }
 
 /* ===== PLAYER ===== */
-function yt(cmd){
-  if(!ytPlayer)return
-  if(cmd==="playVideo")ytPlayer.playVideo()
-  if(cmd==="pauseVideo")ytPlayer.pauseVideo()
-}
 function loadVideo(id){
-  if(!ytPlayer)return
   ytPlayer.loadVideoById(id)
   loadedId=id
   isPlaying=true
@@ -305,21 +291,20 @@ function loadVideo(id){
   reelR.classList.add("spin")
   playBtn.textContent="⏸"
 }
-
 function togglePlay(){
   const song=data[current.p]?.songs[current.s]
   if(!song)return
   const id=extractId(song.url)
   if(loadedId!==id){loadVideo(id);return}
   if(isPlaying){
-    yt("pauseVideo")
+    ytPlayer.pauseVideo()
     cassette.classList.remove("playing")
     reelL.classList.remove("spin")
     reelR.classList.remove("spin")
     playBtn.textContent="▶"
     isPlaying=false
   }else{
-    yt("playVideo")
+    ytPlayer.playVideo()
     cassette.classList.add("playing")
     reelL.classList.add("spin")
     reelR.classList.add("spin")
@@ -329,13 +314,21 @@ function togglePlay(){
 }
 function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
 
-/* ===== UI & CRUD (ASLI, TIDAK DIUBAH) ===== */
-function toggleFolder(i){data[i].open=!data[i].open;save();render()}
+/* ===== RENDER + DRAG ===== */
 function render(){
   playlistsEl.innerHTML=""
   data.forEach((pl,pi)=>{
     const box=document.createElement("div")
     box.className="folder"+(pl.open?" open":"")
+    box.ondragover=e=>e.preventDefault()
+    box.ondrop=e=>{
+      e.preventDefault()
+      if(!dragData || dragData.p===pi)return
+      const song=data[dragData.p].songs.splice(dragData.s,1)[0]
+      data[pi].songs.push(song)
+      save();render()
+    }
+
     box.innerHTML=`
       <div class="folder-header" onclick="toggleFolder(${pi})">
         <span>${pl.name}</span>
@@ -350,6 +343,19 @@ function render(){
     pl.songs.forEach((s,si)=>{
       const row=document.createElement("div")
       row.className="song"
+      row.draggable=true
+      row.ondragstart=()=>{dragData={p:pi,s:si};row.classList.add("dragging")}
+      row.ondragend=()=>row.classList.remove("dragging")
+
+      /* mobile touch */
+      row.addEventListener("pointerdown",()=>{
+        dragData={p:pi,s:si}
+        row.classList.add("dragging")
+      })
+      row.addEventListener("pointerup",()=>{
+        row.classList.remove("dragging")
+      })
+
       row.innerHTML=`
         <span onclick="playSong(${pi},${si})">${s.title}</span>
         <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
@@ -361,6 +367,8 @@ function render(){
 }
 render()
 
+/* ===== CRUD ===== */
+function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
   const u=ytInput.value.trim()
   if(!u)return
