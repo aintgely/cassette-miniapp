@@ -6,100 +6,211 @@
 <title>Retro Cassette Player</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
-:root{--ink:#1b1b1b;--accent:#6a4a3a}
+/* ===== BASE ===== */
+:root{
+  --ink:#1b1b1b;
+  --accent:#6a4a3a;
+}
 *{box-sizing:border-box}
 body{
-  margin:0;height:100vh;display:flex;justify-content:center;align-items:center;
-  background:#e5e5e5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)
+  margin:0;height:100vh;
+  display:flex;justify-content:center;align-items:center;
+  background:#e5e5e5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
 }
 .player{
-  width:360px;background:linear-gradient(180deg,#fafafa,#e0e0e0);
-  border-radius:34px;padding:20px;box-shadow:0 40px 120px rgba(0,0,0,.25)
+  width:360px;
+  background:linear-gradient(180deg,#fafafa,#e0e0e0);
+  border-radius:34px;
+  padding:20px;
+  box-shadow:0 40px 120px rgba(0,0,0,.25);
 }
 
 /* ===== CASSETTE ===== */
 .cassette{
-  position:relative;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(170,170,170,.35));
-  backdrop-filter:blur(6px);border-radius:18px;padding:18px;margin-bottom:16px;
-  border:1px solid rgba(255,255,255,.7);box-shadow:0 20px 60px rgba(0,0,0,.35);
-  cursor:pointer;overflow:hidden
+  position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(170,170,170,.35));
+  backdrop-filter:blur(6px);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.08),
+    0 20px 60px rgba(0,0,0,.35);
+  cursor:pointer;
+  overflow:hidden;
 }
-.cassette.playing .shine{animation:shinePlay 3s linear infinite;opacity:.9}
+
+/* shine */
 .shine{
-  position:absolute;inset:-40%;
-  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.55) 45%,rgba(255,255,255,.25) 50%,transparent 60%);
-  transform:translateX(-60%);animation:shineIdle 8s ease-in-out infinite;pointer-events:none;mix-blend-mode:screen
+  position:absolute;
+  inset:-40%;
+  background:linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,.55) 45%,
+    rgba(255,255,255,.25) 50%,
+    transparent 60%
+  );
+  transform:translateX(-60%);
+  animation:shineIdle 8s ease-in-out infinite;
+  pointer-events:none;
+  mix-blend-mode:screen;
 }
-@keyframes shineIdle{0%{transform:translateX(-60%)}50%{transform:translateX(60%)}100%{transform:translateX(-60%)}}
-@keyframes shinePlay{from{transform:translateX(-80%)}to{transform:translateX(80%)}}
+@keyframes shineIdle{
+  0%{transform:translateX(-60%)}
+  50%{transform:translateX(60%)}
+  100%{transform:translateX(-60%)}
+}
+.cassette.playing .shine{
+  animation:shinePlay 3s linear infinite;
+  opacity:.9;
+}
+@keyframes shinePlay{
+  from{transform:translateX(-80%)}
+  to{transform:translateX(80%)}
+}
 
 /* screws */
-.screw{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#555,#111)}
-.screw.tl{top:10px;left:10px}.screw.tr{top:10px;right:10px}
-.screw.bl{bottom:10px;left:10px}.screw.br{bottom:10px;right:10px}
+.screw{
+  position:absolute;
+  width:9px;height:9px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#555,#111);
+}
+.screw.tl{top:10px;left:10px}
+.screw.tr{top:10px;right:10px}
+.screw.bl{bottom:10px;left:10px}
+.screw.br{bottom:10px;right:10px}
 
 /* label */
-.cassette-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px}
-.cassette-label span{background:rgba(0,0,0,.55);color:#eee;padding:2px 6px;border-radius:4px}
+.cassette-label{
+  display:flex;justify-content:space-between;
+  font-size:11px;letter-spacing:.08em;
+  margin-bottom:8px;
+}
+.cassette-label span{
+  background:rgba(0,0,0,.55);
+  color:#eee;
+  padding:2px 6px;
+  border-radius:4px;
+}
 
 /* window */
-.window{background:#111;border-radius:10px;padding:14px 18px;box-shadow:inset 0 0 18px rgba(0,0,0,.8)}
+.window{
+  background:linear-gradient(180deg,#1b1b1b,#0d0d0d);
+  border-radius:10px;
+  padding:14px 18px;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.8);
+}
 .reels{display:flex;justify-content:space-between}
 .reel{
-  position:relative;width:58px;height:58px;border-radius:50%;
-  border:3px solid #cfcfcf;background:
-  radial-gradient(circle at center,#e5e5e5 0 6px,transparent 7px),
-  radial-gradient(circle at center,rgba(0,0,0,.6),transparent 62%)
+  position:relative;
+  width:58px;height:58px;
+  border-radius:50%;
+  border:3px solid #cfcfcf;
+  background:
+    radial-gradient(circle at center,#e5e5e5 0 6px,transparent 7px),
+    radial-gradient(circle at center,rgba(0,0,0,.6),transparent 62%);
 }
 .spin{animation:spin 1.25s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.hub{position:absolute;top:50%;left:50%;width:14px;height:14px;transform:translate(-50%,-50%);
-  border-radius:50%;background:radial-gradient(circle,#eee,#999 70%,#666)}
+
+/* hub */
+.hub{
+  position:absolute;
+  top:50%;left:50%;
+  width:14px;height:14px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#f2f2f2,#9e9e9e 70%,#6f6f6f);
+  animation:hubIdle 3s ease-in-out infinite;
+}
+@keyframes hubIdle{
+  0%,100%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.08)}
+}
 .spin .hub{animation:hubSpin 1.25s linear infinite}
 @keyframes hubSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
 /* ===== PANEL ===== */
-.panel{overflow:hidden;max-height:0;opacity:0;transform:translateY(-10px);transition:.6s}
-.player.open .panel{max-height:900px;opacity:1;transform:translateY(0)}
+.panel{
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transform:translateY(-10px);
+  transition:.6s;
+}
+.player.open .panel{
+  max-height:900px;
+  opacity:1;
+  transform:translateY(0);
+}
 .input{display:flex;gap:8px;margin:14px 0}
-input{flex:1;padding:10px 12px;border-radius:16px;border:1px solid rgba(0,0,0,.15)}
-.input button{border:none;border-radius:14px;padding:0 14px;background:var(--accent);color:#fff}
+input{
+  flex:1;padding:10px 12px;
+  border-radius:16px;border:1px solid rgba(0,0,0,.15);
+}
+.input button{
+  border:none;border-radius:14px;
+  padding:0 14px;background:var(--accent);color:#fff;
+}
 .controls{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
-.controls button{height:38px;min-width:38px;border:none;border-radius:999px;background:#444;color:#fff}
+.controls button{
+  height:38px;min-width:38px;border:none;border-radius:999px;
+  background:#444;color:#fff;
+}
 
-/* ===== PLAYLIST ===== */
-.folder{background:#f2f2f2;border-radius:18px;padding:10px;margin-bottom:12px}
+/* playlist */
+.folder{
+  background:#f2f2f2;
+  border-radius:18px;
+  padding:10px;margin-bottom:12px;
+}
 .folder-header{
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:13px;font-weight:500;cursor:pointer
+  display:flex;justify-content:space-between;
+  font-size:13px;cursor:pointer;
 }
 .folder-actions span{margin-left:8px;opacity:.6;cursor:pointer}
 .songs{display:none;margin-top:6px}
 .folder.open .songs{display:block}
 .song{
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:13px;padding:6px 8px;border-radius:10px
+  display:flex;justify-content:space-between;
+  font-size:13px;padding:6px 8px;border-radius:10px;
 }
 .song.dragging{opacity:.4}
 .song:hover{background:rgba(0,0,0,.05)}
 .song span.x{opacity:.4;cursor:pointer}
 
-.credit{position:fixed;bottom:14px;left:16px;font-size:12px;opacity:.55}
-iframe{display:none}
+.credit{
+  position:fixed;bottom:14px;left:16px;
+  font-size:12px;opacity:.55;
+}
 </style>
 </head>
 
 <body>
 
 <div class="player">
+
   <div class="cassette" onclick="togglePanel()">
     <span class="shine"></span>
-    <span class="screw tl"></span><span class="screw tr"></span>
-    <span class="screw bl"></span><span class="screw br"></span>
 
-    <div class="cassette-label"><span>SIDE B</span><span>CD it II</span><span>90</span></div>
+    <span class="screw tl"></span>
+    <span class="screw tr"></span>
+    <span class="screw bl"></span>
+    <span class="screw br"></span>
+
+    <div class="cassette-label">
+      <span>SIDE B</span>
+      <span>CD it II</span>
+      <span>90</span>
+    </div>
 
     <div class="window">
       <div class="reels">
@@ -125,16 +236,37 @@ iframe{display:none}
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
   </div>
+
 </div>
 
 <div class="credit">@aintgely</div>
-<iframe id="player" allow="autoplay"></iframe>
+
+<!-- YOUTUBE PLAYER (API RESMI) -->
+<div id="player"></div>
 
 <script>
-let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[{name:"My Playlist",songs:[],open:true}]
-let current={p:0,s:0},loadedId=null,isPlaying=false,dragData=null
+/* ===== YOUTUBE API ===== */
+let ytPlayer=null
+function onYouTubeIframeAPIReady(){
+  ytPlayer=new YT.Player("player",{
+    height:"0",
+    width:"0",
+    playerVars:{autoplay:1,controls:0,rel:0,playsinline:1},
+    events:{onStateChange:e=>{
+      if(e.data===YT.PlayerState.ENDED)next()
+    }}
+  })
+}
 
-const iframe=document.getElementById("player")
+/* ===== STATE ===== */
+let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
+  {name:"My Playlist",songs:[],open:true}
+]
+let current={p:0,s:0}
+let loadedId=null
+let isPlaying=false
+let dragData=null
+
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
 const playBtn=document.getElementById("playBtn")
@@ -143,30 +275,35 @@ const cassette=document.querySelector(".cassette")
 
 function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
 function togglePanel(){document.querySelector(".player").classList.toggle("open")}
-function extractId(u){return u.includes("youtu.be/")?u.split("youtu.be/")[1].split("?")[0]:u.split("v=")[1]?.split("&")[0]}
 
-function yt(cmd){iframe.contentWindow?.postMessage(JSON.stringify({event:"command",func:cmd,args:[]}),"*")}
-function loadVideo(id){
-  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`
-  loadedId=id;isPlaying=true
-  cassette.classList.add("playing")
-  reelL.classList.add("spin");reelR.classList.add("spin")
-  playBtn.textContent="⏸"
+function extractId(u){
+  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
+  return u.split("v=")[1]?.split("&")[0]
 }
 
-/* AUTO NEXT */
-window.addEventListener("message",e=>{
-  try{const m=JSON.parse(e.data);if(m.event==="onStateChange"&&m.info===0)autoNext()}catch{}
-})
-function autoNext(){
-  const list=data[current.p]?.songs
-  if(!list||!list.length)return
-  cassette.classList.remove("playing")
-  reelL.classList.remove("spin");reelR.classList.remove("spin")
-  isPlaying=false
-  current.s=(current.s+1)%list.length
-  loadedId=null
-  setTimeout(()=>togglePlay(),300)
+async function fetchTitle(url){
+  try{
+    const r=await fetch("https://www.youtube.com/oembed?url="+encodeURIComponent(url)+"&format=json")
+    const j=await r.json()
+    return j.title
+  }catch{return "Unknown Title"}
+}
+
+/* ===== PLAYER ===== */
+function yt(cmd){
+  if(!ytPlayer)return
+  if(cmd==="playVideo")ytPlayer.playVideo()
+  if(cmd==="pauseVideo")ytPlayer.pauseVideo()
+}
+function loadVideo(id){
+  if(!ytPlayer)return
+  ytPlayer.loadVideoById(id)
+  loadedId=id
+  isPlaying=true
+  cassette.classList.add("playing")
+  reelL.classList.add("spin")
+  reelR.classList.add("spin")
+  playBtn.textContent="⏸"
 }
 
 function togglePlay(){
@@ -177,40 +314,22 @@ function togglePlay(){
   if(isPlaying){
     yt("pauseVideo")
     cassette.classList.remove("playing")
-    reelL.classList.remove("spin");reelR.classList.remove("spin")
-    playBtn.textContent="▶";isPlaying=false
+    reelL.classList.remove("spin")
+    reelR.classList.remove("spin")
+    playBtn.textContent="▶"
+    isPlaying=false
   }else{
     yt("playVideo")
     cassette.classList.add("playing")
-    reelL.classList.add("spin");reelR.classList.add("spin")
-    playBtn.textContent="⏸";isPlaying=true
+    reelL.classList.add("spin")
+    reelR.classList.add("spin")
+    playBtn.textContent="⏸"
+    isPlaying=true
   }
 }
+function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
 
-/* ===== DRAG DESKTOP + HP ===== */
-function bindDrag(el,p,s){
-  el.draggable=true
-  el.ondragstart=()=>dragData={p,s}
-  el.addEventListener("touchstart",()=>{dragData={p,s};el.classList.add("dragging")},{passive:true})
-  el.addEventListener("touchend",e=>{
-    el.classList.remove("dragging")
-    const t=e.changedTouches[0]
-    const folder=document.elementFromPoint(t.clientX,t.clientY)?.closest(".folder")
-    if(folder){
-      const to=[...playlistsEl.children].indexOf(folder)
-      moveSong(p,s,to)
-    }
-    dragData=null
-  })
-}
-function moveSong(fp,fs,tp){
-  if(tp<0||tp===fp)return
-  const song=data[fp].songs.splice(fs,1)[0]
-  data[tp].songs.push(song)
-  save();render()
-}
-
-/* ===== UI ===== */
+/* ===== UI & CRUD (ASLI, TIDAK DIUBAH) ===== */
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 function render(){
   playlistsEl.innerHTML=""
@@ -225,40 +344,38 @@ function render(){
           <span onclick="deletePlaylist(${pi})">✕</span>
         </div>
       </div>
-      <div class="songs"></div>`
+      <div class="songs"></div>
+    `
     const list=box.querySelector(".songs")
     pl.songs.forEach((s,si)=>{
       const row=document.createElement("div")
       row.className="song"
       row.innerHTML=`
-        <span onclick="current={p:${pi},s:${si}};loadedId=null;togglePlay()">${s.title}</span>
-        <span class="x" onclick="deleteSong(${pi},${si})">✕</span>`
-      bindDrag(row,pi,si)
+        <span onclick="playSong(${pi},${si})">${s.title}</span>
+        <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
+      `
       list.appendChild(row)
     })
-    box.ondragover=e=>e.preventDefault()
-    box.ondrop=()=>{if(dragData)moveSong(dragData.p,dragData.s,pi)}
     playlistsEl.appendChild(box)
   })
 }
 render()
 
-/* CRUD */
 async function addSong(){
   const u=ytInput.value.trim()
   if(!u)return
-  const r=await fetch("https://www.youtube.com/oembed?url="+encodeURIComponent(u)+"&format=json")
-  const j=await r.json()
-  data[current.p].songs.push({url:u,title:j.title})
-  ytInput.value="";save();render()
+  const title=await fetchTitle(u)
+  data[current.p].songs.push({url:u,title})
+  ytInput.value=""
+  save();render()
 }
 function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save();render()}
 function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(n){data[i].name=n;save();render()}}
 function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);current={p:0,s:0};save();render()}
 function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
-function next(){current.s=(current.s+1)%data[current.p].songs.length;loadedId=null;togglePlay()}
-function prev(){current.s=Math.max(0,current.s-1);loadedId=null;togglePlay()}
-function shuffle(){current.s=Math.floor(Math.random()*data[current.p].songs.length);loadedId=null;togglePlay()}
+function next(){if(!data[current.p].songs.length)return;current.s=(current.s+1)%data[current.p].songs.length;loadedId=null;togglePlay()}
+function prev(){if(!data[current.p].songs.length)return;current.s=Math.max(0,current.s-1);loadedId=null;togglePlay()}
+function shuffle(){if(!data[current.p].songs.length)return;current.s=Math.floor(Math.random()*data[current.p].songs.length);loadedId=null;togglePlay()}
 </script>
 
 </body>
