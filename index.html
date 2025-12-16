@@ -228,12 +228,6 @@ input{
   opacity:1;
   transform:translateY(0);
 }
-  function toggleStylePicker(){
-  document
-    .querySelector(".style-picker")
-    .classList
-    .toggle("open")
-}
   
 .style-btn{
   width:42px;
@@ -526,6 +520,12 @@ function setStyle(i){
   localStorage.setItem("cassetteStyle", i)
   applyStyle()
 }
+  function toggleStylePicker(){
+  document
+    .querySelector(".style-picker")
+    .classList
+    .toggle("open")
+}
 
 applyStyle()
 
@@ -560,6 +560,7 @@ function enableDrag(){
 
 </body>
 </html>
+
 
 
 
