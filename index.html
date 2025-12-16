@@ -211,7 +211,30 @@ input{
   justify-content:center;
   gap:10px;
 }
+  .style-list{
+  display:flex;
+  justify-content:center;
+  gap:10px;
 
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transform:translateY(-6px);
+  transition:.35s ease;
+}
+
+.style-picker.open .style-list{
+  max-height:80px;
+  opacity:1;
+  transform:translateY(0);
+}
+  function toggleStylePicker(){
+  document
+    .querySelector(".style-picker")
+    .classList
+    .toggle("open")
+}
+  
 .style-btn{
   width:42px;
   height:42px;
@@ -325,7 +348,9 @@ input{
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
 <div class="style-picker">
-  <div class="style-title">set your mood.</div>
+<div class="style-title" onclick="toggleStylePicker()">
+  set your mood. ▾
+</div>
 
   <div class="style-list">
     <button class="style-btn" onclick="setStyle(0)">
@@ -535,6 +560,7 @@ function enableDrag(){
 
 </body>
 </html>
+
 
 
 
