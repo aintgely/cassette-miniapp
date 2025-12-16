@@ -135,7 +135,9 @@ body{
 
 /* WINDOW */
 .window{
-  background:url("download.gif") center/cover no-repeat;
+  background:
+    var(--cassette-bg)
+    center/cover no-repeat;
   border-radius:10px;
   padding:14px 18px;
   box-shadow:inset 0 0 18px rgba(0,0,0,.8);
@@ -190,6 +192,50 @@ input{
 .controls button{
   height:38px;min-width:38px;border:none;border-radius:999px;
   background:#444;color:#fff;
+}
+
+/* ===== STYLE PICKER ===== */
+.style-picker{
+  margin-top:18px;
+  text-align:center;
+}
+
+.style-title{
+  font-size:12px;
+  opacity:.6;
+  margin-bottom:8px;
+}
+
+.style-list{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.style-btn{
+  width:42px;
+  height:42px;
+  padding:0;
+  border:none;
+  border-radius:50%;
+  background:#ddd;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .25s, box-shadow .25s;
+}
+
+.style-btn img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.style-btn:hover{
+  transform:scale(1.08);
+}
+
+.style-btn.active{
+  box-shadow:0 0 0 2px var(--accent);
 }
 
 /* PLAYLIST */
@@ -278,7 +324,23 @@ input{
 
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
+<div class="style-picker">
+  <div class="style-title">Choose your style</div>
+
+  <div class="style-list">
+    <button class="style-btn" onclick="setStyle(0)">
+      <img src="style1.gif">
+    </button>
+
+    <button class="style-btn" onclick="setStyle(1)">
+      <img src="style2.gif">
+    </button>
+
+    <button class="style-btn" onclick="setStyle(2)">
+      <img src="style3.gif">
+    </button>
   </div>
+</div>
 
 </div>
 
@@ -411,6 +473,38 @@ function next(){if(!data[current.p].songs.length)return;current.s=(current.s+1)%
 function prev(){if(!data[current.p].songs.length)return;current.s=Math.max(0,current.s-1);loadedId=null;togglePlay()}
 function shuffle(){if(!data[current.p].songs.length)return;current.s=Math.floor(Math.random()*data[current.p].songs.length);loadedId=null;togglePlay()}
 
+/* ===== CASSETTE STYLE PICKER ===== */
+const styles = [
+  "url('style1.gif')",
+  "url('style2.gif')",
+  "url('style3.gif')"
+]
+
+let currentStyle = Number(
+  localStorage.getItem("cassetteStyle") || 0
+)
+
+function applyStyle(){
+  document
+    .querySelector(".window")
+    .style
+    .setProperty("--cassette-bg", styles[currentStyle])
+
+  document
+    .querySelectorAll(".style-btn")
+    .forEach((b,i)=>{
+      b.classList.toggle("active", i===currentStyle)
+    })
+}
+
+function setStyle(i){
+  currentStyle = i
+  localStorage.setItem("cassetteStyle", i)
+  applyStyle()
+}
+
+applyStyle()
+
 /* ===== DRAG LOGIC ===== */
 let dragSong=null,dragPlaylist=null
 function enableDrag(){
@@ -437,8 +531,8 @@ function enableDrag(){
     })
   })
 }
+
 </script>
 
 </body>
 </html>
-
