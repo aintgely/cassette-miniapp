@@ -203,14 +203,33 @@ input{
   font-size:13px;cursor:pointer;
 }
 .folder-actions span{margin-left:8px;opacity:.6;cursor:pointer}
-.songs{display:none;margin-top:6px}
-.folder.open .songs{display:block}
-.song{
-  display:flex;justify-content:space-between;
-  font-size:13px;padding:6px 8px;border-radius:10px;
+.songs{
+  display:none;
+  margin-top:6px;
+
+  max-height:160px;        /* tinggi area lagu */
+  overflow-y:auto;         /* aktifkan scroll */
+  overscroll-behavior:contain;
+  padding-right:4px;       /* ruang scrollbar */
+}
+
+.folder.open .songs{
+  display:block;
 }
 .song:hover{background:rgba(0,0,0,.05)}
 .song span.x{opacity:.4;cursor:pointer}
+
+/* scrollbar aesthetic */
+.songs::-webkit-scrollbar{
+  width:6px;
+}
+.songs::-webkit-scrollbar-track{
+  background:transparent;
+}
+.songs::-webkit-scrollbar-thumb{
+  background:rgba(0,0,0,.25);
+  border-radius:999px;
+}
 
 .credit{
   position:fixed;bottom:14px;left:16px;
@@ -422,4 +441,3 @@ function enableDrag(){
 
 </body>
 </html>
-
