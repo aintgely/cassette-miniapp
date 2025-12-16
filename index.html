@@ -345,8 +345,8 @@ input{
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
 <div class="style-picker">
-<div class="style-title" onclick="toggleStylePicker()">
-  set your mood. ▾
+<div class="style-title" id="moodTitle">set your mood</div>
+
 </div>
 
   <div class="style-list">
@@ -500,6 +500,11 @@ const styles = [
   "url('download.gif')",
   "url('vaporwave.gif')"
 ]
+  const moods = [
+  "mood: nostalgia",
+  "mood: memories",
+  "mood: dreamcore nostalgia"
+]
 
 let currentStyle = Number(
   localStorage.getItem("cassetteStyle") || 0
@@ -516,6 +521,12 @@ function applyStyle(){
     .forEach((b,i)=>{
       b.classList.toggle("active", i===currentStyle)
     })
+
+  // 🌙 update mood text
+  const title = document.getElementById("moodTitle")
+  if(title){
+    title.textContent = moods[currentStyle]
+  }
 }
 
 function setStyle(i){
