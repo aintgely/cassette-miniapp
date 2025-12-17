@@ -6,6 +6,13 @@
 <title>Retro Cassette Player</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script>
+/* === STEP 1: Telegram User ID === */
+const tg = window.Telegram.WebApp
+const uid = tg?.initDataUnsafe?.user?.id || "guest"
+</script>
+
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
@@ -378,9 +385,18 @@ function onYouTubeIframeAPIReady(){
   })
 }
 
-let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
+let data=[
   {name:"My Playlist",songs:[],open:true}
 ]
+
+async function loadPlaylist(){
+  const r = await fetch(`/api/playlist?uid=${uid}`)
+  if(r.ok){
+    data = await r.json()
+    render()
+  }
+}
+  
 let current={p:0,s:0}
 let loadedId=null,isPlaying=false
 
@@ -391,7 +407,14 @@ const playlistsEl=document.getElementById("playlists")
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
 
-function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
+function save(){
+  localStorage.setItem("cassettePlaylists",JSON.stringify(data))
+  fetch("/api/playlist",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({uid,data})
+  })
+}
 
 function togglePanel(){
   playerWrap.classList.toggle("open")
@@ -558,8 +581,11 @@ function enableDrag(){
     })
   })
 }
-
+render()
+loadPlaylist()
+  
 </script>
 
 </body>
 </html>
+
