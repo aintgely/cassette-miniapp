@@ -13,6 +13,12 @@ const tg = window.Telegram.WebApp
 const uid = tg?.initDataUnsafe?.user?.id || "guest"
 </script>
 
+/* === DEBUG (WAJIB SEMENTARA) === */
+console.log("Telegram:", tg)
+console.log("initData:", tg.initDataUnsafe)
+console.log("uid:", uid)
+</script>
+
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
@@ -588,4 +594,5 @@ loadPlaylist()
 
 </body>
 </html>
+
 
