@@ -1,43 +1,16 @@
-export default async function handler(req, res) {
-  const KV_REST_API_URL = process.env.KV_REST_API_URL
-  const KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN
+export default function handler(req, res) {
+  if (req.method === "GET") {
+    const { uid } = req.query
+    if (!uid) return res.json([])
 
-  const headers = {
-    Authorization: `Bearer ${KV_REST_API_TOKEN}`,
-    'Content-Type': 'application/json',
+    return res.json([]) // sementara kosong, tapi STATUS 200
   }
 
-  if (req.method === 'GET') {
-    const userId = req.query.userId
-    if (!userId) {
-      return res.status(400).json({ error: 'No userId' })
-    }
+  if (req.method === "POST") {
+    const { uid, data } = req.body
+    if (!uid || !data) return res.status(400).end()
 
-    const r = await fetch(
-      `${KV_REST_API_URL}/get/playlist:${userId}`,
-      { headers }
-    )
-    const data = await r.json()
-
-    return res.json(data?.result || { playlists: [] })
-  }
-
-  if (req.method === 'POST') {
-    const { userId, playlists } = req.body
-    if (!userId) {
-      return res.status(400).json({ error: 'No userId' })
-    }
-
-    await fetch(
-      `${KV_REST_API_URL}/set/playlist:${userId}`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ value: { playlists } }),
-      }
-    )
-
-    return res.json({ success: true })
+    return res.json({ ok: true })
   }
 
   res.status(405).end()
