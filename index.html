@@ -369,7 +369,16 @@ input{
 <div id="player"></div>
 
 <script>
-const tg = window.Telegram.WebApp
+let ytPlayer=null
+function onYouTubeIframeAPIReady(){
+  ytPlayer=new YT.Player("player",{
+    height:"0",width:"0",
+    playerVars:{autoplay:1,controls:0,rel:0,playsinline:1},
+    events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)next()}}
+  })
+}
+
+  const tg = window.Telegram.WebApp
 tg.ready()
 
 const userId = tg.initDataUnsafe?.user?.id || "guest"
@@ -391,16 +400,8 @@ async function saveToServer(playlists) {
   })
 }
 
-let saveTimeout
-
-function save(){
-  clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(() => {
-    saveToServer(data)
-  }, 300)
-}
-
-async function initData(){
+let data = []
+  async function initData(){
   data = await loadFromServer()
   if (!data.length) {
     data = [{ name:"My Playlist", songs:[], open:true }]
@@ -409,7 +410,7 @@ async function initData(){
 }
 
 initData()
-
+  
 let current={p:0,s:0}
 let loadedId=null,isPlaying=false
 
@@ -419,6 +420,14 @@ const playBtn=document.getElementById("playBtn")
 const playlistsEl=document.getElementById("playlists")
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
+
+let saveTimeout
+function save(){
+  clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(() => {
+    saveToServer(data)
+  }, 300)
+}
 
 function togglePanel(){
   playerWrap.classList.toggle("open")
@@ -504,12 +513,6 @@ function render(){
 }
 render()
 
-async function loadFromServer() {
-  const res = await fetch(`/api/playlist?userId=${userId}`)
-  const json = await res.json()
-  return json.playlists || []
-}
-
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
   const u=ytInput.value.trim()
@@ -535,6 +538,8 @@ const styles = [
 ]
 
 let currentStyle = Number(
+  localStorage.getItem("cassetteStyle") || 0
+)
 
 function applyStyle(){
   document
@@ -551,8 +556,8 @@ function applyStyle(){
 
 function setStyle(i){
   currentStyle = i
-function save(){
-  saveToServer(data)
+  localStorage.setItem("cassetteStyle", i)
+  applyStyle()
 }
   function toggleStylePicker(){
   document
