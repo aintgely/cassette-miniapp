@@ -381,8 +381,15 @@ function onYouTubeIframeAPIReady(){
   const tg = window.Telegram.WebApp
 tg.ready()
 
-const userId = tg.initDataUnsafe?.user?.id || "guest"
+if (!tg.initDataUnsafe?.user?.id) {
+  alert("Open this Mini App from Telegram")
+  throw new Error("No Telegram user")
+}
 
+const userId = tg.initDataUnsafe.user.id
+
+let data = []
+  
 async function loadFromServer() {
   const res = await fetch(`/api/playlist?userId=${userId}`)
   const json = await res.json()
@@ -396,17 +403,15 @@ async function saveToServer(playlists) {
     body: JSON.stringify({
       userId,
       playlists
-    })
-  })
-}
 
-let data = []
+let saveTimeout
+function save(){ ... }
+
   async function initData(){
   data = await loadFromServer()
   if (!data.length) {
     data = [{ name:"My Playlist", songs:[], open:true }]
   }
-  render()
 }
 
 initData()
@@ -599,3 +604,4 @@ function enableDrag(){
 
 </body>
 </html>
+
