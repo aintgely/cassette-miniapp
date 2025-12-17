@@ -369,6 +369,16 @@ input{
 <div id="player"></div>
 
 <script>
+const tg = Telegram.WebApp
+tg.ready()
+
+const tgUser = tg.initDataUnsafe.user
+if (!tgUser) {
+  alert("Telegram user not detected")
+}
+
+const USER_ID = tgUser.id
+
 let ytPlayer=null
 function onYouTubeIframeAPIReady(){
   ytPlayer=new YT.Player("player",{
@@ -378,7 +388,7 @@ function onYouTubeIframeAPIReady(){
   })
 }
 
-let data=JSON.parse(localStorage.getItem("cassettePlaylists"))||[
+let data=[
   {name:"My Playlist",songs:[],open:true}
 ]
 let current={p:0,s:0}
@@ -391,7 +401,32 @@ const playlistsEl=document.getElementById("playlists")
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
 
-function save(){localStorage.setItem("cassettePlaylists",JSON.stringify(data))}
+async function save(){
+  await fetch("/api/playlist",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      userId: USER_ID,
+      playlist: data
+    })
+  })
+}
+
+async function loadPlaylist(){
+  try{
+    const r = await fetch(`/api/playlist?userId=${USER_ID}`)
+    const j = await r.json()
+
+    if (Array.isArray(j) && j.length) {
+      data = j
+    }
+
+    render()
+  }catch(e){
+    console.error("load playlist failed", e)
+    render()
+  }
+}
 
 function togglePanel(){
   playerWrap.classList.toggle("open")
@@ -475,7 +510,7 @@ function render(){
   })
   enableDrag()
 }
-render()
+loadPlaylist()
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
@@ -563,3 +598,4 @@ function enableDrag(){
 
 </body>
 </html>
+
