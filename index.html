@@ -400,32 +400,31 @@ const playBtn=document.getElementById("playBtn")
 const playlistsEl=document.getElementById("playlists")
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
-
-async function save(){
-  await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      userId: USER_ID,
-      playlist: data
+  
+  let saveTimeout
+function save(){
+  clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(async () => {
+    await fetch(`/api/playlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: USER_ID,
+        playlists: data
+      })
     })
-  })
+  }, 300)
 }
 
-async function loadPlaylist(){
-  try{
-    const r = await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
-    const j = await r.json()
-
-    if (Array.isArray(j) && j.length) {
-      data = j
-    }
-
-    render()
-  }catch(e){
-    console.error("load playlist failed", e)
-    render()
-  }
+async function save(){
+  await fetch(`/api/playlist`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: USER_ID,
+      playlists: data
+    })
+  })
 }
 
 function togglePanel(){
@@ -511,14 +510,25 @@ function render(){
   enableDrag()
 }
 loadPlaylist()
-  async function loadPlaylist(){
+async function loadPlaylist(){
   try{
-    const r = await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
+    const r = await fetch(`/api/playlist?userId=${USER_ID}`)
     const j = await r.json()
 
-    if (Array.isArray(j) && j.length) {
-      data = j
+    if (Array.isArray(j.playlists)) {
+      data = j.playlists
     }
+
+    render()
+  }catch(e){
+    console.error("load playlist failed", e)
+    render()
+  }
+}
+
+if (Array.isArray(j.playlists)) {
+  data = j.playlists
+}
 
     render()
   }catch(e){
@@ -613,5 +623,6 @@ function enableDrag(){
 
 </body>
 </html>
+
 
 
