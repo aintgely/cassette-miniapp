@@ -402,7 +402,7 @@ const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
 
 async function save(){
-  await fetch("/api/playlist",{
+  await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
@@ -414,7 +414,7 @@ async function save(){
 
 async function loadPlaylist(){
   try{
-    const r = await fetch(`/api/playlist?userId=${USER_ID}`)
+    const r = await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
     const j = await r.json()
 
     if (Array.isArray(j) && j.length) {
@@ -511,6 +511,21 @@ function render(){
   enableDrag()
 }
 loadPlaylist()
+  async function loadPlaylist(){
+  try{
+    const r = await fetch(`${API_BASE}/api/playlist?userId=${USER_ID}`)
+    const j = await r.json()
+
+    if (Array.isArray(j) && j.length) {
+      data = j
+    }
+
+    render()
+  }catch(e){
+    console.error("load playlist failed", e)
+    render()
+  }
+}
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
@@ -598,4 +613,5 @@ function enableDrag(){
 
 </body>
 </html>
+
 
