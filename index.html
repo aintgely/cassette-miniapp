@@ -624,19 +624,15 @@ function sharePlaylist(index){
     )
   )
 
-  const MINIAPP_URL = "https://cassette-miniapp.vercel.app/"
+  // 🔴 ISI DENGAN USERNAME BOT KAMU (tanpa @)
+  const BOT_USERNAME = "ethersoundbot"
 
-  const shareLink = `${MINIAPP_URL}?share=${payload}`
+  // ✅ INI DIA TEMPAT startapp DIPAKAI
+  const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${payload}`
 
-  if(tg?.openTelegramLink){
-    tg.openTelegramLink(
-      `https://t.me/share/url?url=${encodeURIComponent(shareLink)}&text=🎶 Playlist: ${encodeURIComponent(pl.name)}`
-    )
-  }else{
-    window.open(
-      `https://t.me/share/url?url=${encodeURIComponent(shareLink)}`
-    )
-  }
+  tg.openTelegramLink(
+    `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=🎶 Playlist: ${encodeURIComponent(pl.name)}`
+  )
 }
 
 render()
@@ -647,13 +643,12 @@ loadPlaylist().then(() => {
 
 /* ===== IMPORT SHARED PLAYLIST ===== */
 function importSharedPlaylist(){
-  const params = new URLSearchParams(window.location.search)
-  const shared = params.get("share")
-  if(!shared) return
+  const startParam = tg?.initDataUnsafe?.start_param
+  if(!startParam) return
 
   try{
     const decoded = JSON.parse(
-      decodeURIComponent(atob(shared))
+      decodeURIComponent(atob(startParam))
     )
 
     const exists = data.some(p => p.name === decoded.name)
@@ -676,5 +671,6 @@ function importSharedPlaylist(){
 
 </body>
 </html>
+
 
 
