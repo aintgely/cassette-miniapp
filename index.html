@@ -317,6 +317,27 @@ input{
 .folder.open .songs{
   display:block;
 }
+
+/* ===== FIX BUTTON UI (HARUS DI LUAR) ===== */
+.folder-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.folder-actions button{
+  all:unset;
+  cursor:pointer;
+  font-size:14px;
+  line-height:1;
+  opacity:.6;
+  padding:2px;
+}
+
+.folder-actions button:hover{
+  opacity:1;
+}
+
 .song:hover{background:rgba(0,0,0,.05)}
 .song span.x{opacity:.4;cursor:pointer}
 
@@ -642,6 +663,7 @@ async function sharePlaylist(index){
 tg.openTelegramLink(
   `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
 )
+}
   async function importSharedPlaylist(){
   const id = tg?.initDataUnsafe?.start_param
   if(!id) return
@@ -668,6 +690,7 @@ tg.openTelegramLink(
 
 </body>
 </html>
+
 
 
 
