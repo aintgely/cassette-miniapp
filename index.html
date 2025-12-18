@@ -497,16 +497,17 @@ function render(){
   data.forEach((pl,pi)=>{
     const box=document.createElement("div")
     box.className="folder"+(pl.open?" open":"")
-    box.innerHTML=`
-      <div class="folder-header" onclick="toggleFolder(${pi})">
-        <span>${pl.name}</span>
-        <div class="folder-actions" onclick="event.stopPropagation()">
-          <span onclick="renamePlaylist(${pi})">✎</span>
-          <span onclick="deletePlaylist(${pi})">✕</span>
-        </div>
-      </div>
-      <div class="songs"></div>
-    `
+box.innerHTML = `
+  <div class="folder-header" onclick="toggleFolder(${pi})">
+    <span>${pl.name}</span>
+    <div class="folder-actions" onclick="event.stopPropagation()">
+      <span onclick="sharePlaylist(${pi})">🔗</span>
+      <span onclick="renamePlaylist(${pi})">✎</span>
+      <span onclick="deletePlaylist(${pi})">✕</span>
+    </div>
+  </div>
+  <div class="songs"></div>
+`
     const list=box.querySelector(".songs")
     pl.songs.forEach((s,si)=>{
       const row=document.createElement("div")
@@ -604,10 +605,74 @@ function enableDrag(){
     })
   })
 }
+function sharePlaylist(index){
+  const pl = data[index]
+  if(!pl || !pl.songs.length){
+    alert("Playlist kosong")
+    return
+  }
+
+  const payload = btoa(
+    encodeURIComponent(
+      JSON.stringify({
+        name: pl.name,
+        songs: pl.songs
+      })
+    )
+  )
+
+  const MINIAPP_URL = "https://cassette-miniapp.vercel.app/"
+
+  const shareLink = `${MINIAPP_URL}?share=${payload}`
+
+  if(tg?.openTelegramLink){
+    tg.openTelegramLink(
+      `https://t.me/share/url?url=${encodeURIComponent(shareLink)}&text=🎶 Playlist: ${encodeURIComponent(pl.name)}`
+    )
+  }else{
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent(shareLink)}`
+    )
+  }
+}
+
+/* ===== DRAG LOGIC ===== */
+let dragSong=null,dragPlaylist=null
+function enableDrag(){
+  ...
+}
+
 render()
 loadPlaylist()
-  
+
+  (function importSharedPlaylist(){
+  const params = new URLSearchParams(window.location.search)
+  const shared = params.get("share")
+  if(!shared) return
+
+  try{
+    const decoded = JSON.parse(
+      decodeURIComponent(atob(shared))
+    )
+
+    const exists = data.some(p => p.name === decoded.name)
+    if(!exists){
+      data.push({
+        name: decoded.name,
+        songs: decoded.songs,
+        open: true
+      })
+      save()
+      render()
+      alert("Playlist imported 🎶")
+    }
+  }catch(e){
+    console.error("Invalid shared playlist", e)
+  }
+})()
+
 </script>
 
 </body>
 </html>
+
