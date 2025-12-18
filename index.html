@@ -10,7 +10,6 @@
 <script>
 /* === STEP 1: Telegram User ID === */
 const tg = window.Telegram.WebApp
-tg.expand()
 const uid = tg?.initDataUnsafe?.user?.id || "guest"
 
   /* === TELEGRAM CLOUD STORAGE === */
@@ -317,27 +316,6 @@ input{
 .folder.open .songs{
   display:block;
 }
-
-/* ===== FIX BUTTON UI (HARUS DI LUAR) ===== */
-.folder-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.folder-actions button{
-  all:unset;
-  cursor:pointer;
-  font-size:14px;
-  line-height:1;
-  opacity:.6;
-  padding:2px;
-}
-
-.folder-actions button:hover{
-  opacity:1;
-}
-
 .song:hover{background:rgba(0,0,0,.05)}
 .song span.x{opacity:.4;cursor:pointer}
 
@@ -519,17 +497,17 @@ function render(){
   data.forEach((pl,pi)=>{
     const box=document.createElement("div")
     box.className="folder"+(pl.open?" open":"")
-box.innerHTML = `
-  <div class="folder-header" onclick="toggleFolder(${pi})">
-    <span>${pl.name}</span>
-    <div class="folder-actions">
-      <button class="copy-btn" data-i="${pi}">📋</button>
-      <button onclick="renamePlaylist(${pi})">✎</button>
-      <button onclick="deletePlaylist(${pi})">✕</button>
-    </div>
-  </div>
-  <div class="songs"></div>
-`
+    box.innerHTML=`
+      <div class="folder-header" onclick="toggleFolder(${pi})">
+        <span>${pl.name}</span>
+<div class="folder-actions" onclick="event.stopPropagation()">
+  <span onclick="copyPlaylistLink(${pi})">📋</span>
+  <span onclick="renamePlaylist(${pi})">✎</span>
+  <span onclick="deletePlaylist(${pi})">✕</span>
+</div>
+      </div>
+      <div class="songs"></div>
+    `
     const list=box.querySelector(".songs")
     pl.songs.forEach((s,si)=>{
       const row=document.createElement("div")
@@ -540,17 +518,11 @@ box.innerHTML = `
       `
       list.appendChild(row)
     })
-playlistsEl.appendChild(box)
-})
-enableDrag()
-
-document.querySelectorAll(".copy-btn").forEach(btn=>{
-  btn.onclick = e => {
-    e.stopPropagation()
-    const i = btn.dataset.i
-    copyPlaylistLink(i)
-  }
-})
+    playlistsEl.appendChild(box)
+  })
+  enableDrag()
+}
+render()
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
@@ -607,39 +579,38 @@ function setStyle(i){
 
 applyStyle()
 
-  /* ===== DRAG LOGIC ===== */
-let dragSong=null, dragPlaylist=null
-
+/* ===== DRAG LOGIC ===== */
+let dragSong=null,dragPlaylist=null
 function enableDrag(){
   document.querySelectorAll(".folder").forEach((f,pi)=>{
-    f.draggable = true
-    f.ondragstart = () => dragPlaylist = pi
-    f.ondragover = e => e.preventDefault()
-    f.ondrop = () => {
-      if(dragPlaylist===null || dragPlaylist===pi) return
-      const m = data.splice(dragPlaylist,1)[0]
+    f.draggable=true
+    f.ondragstart=()=>dragPlaylist=pi
+    f.ondragover=e=>e.preventDefault()
+    f.ondrop=()=>{
+      if(dragPlaylist===null||dragPlaylist===pi)return
+      const m=data.splice(dragPlaylist,1)[0]
       data.splice(pi,0,m)
-      dragPlaylist = null
-      save(); render()
+      dragPlaylist=null;save();render()
     }
-
     f.querySelectorAll(".song").forEach((s,si)=>{
-      s.draggable = true
-      s.ondragstart = () => dragSong = {p:pi,s:si}
-      s.ondragover = e => e.preventDefault()
-      s.ondrop = () => {
-        if(!dragSong) return
-        const m = data[dragSong.p].songs.splice(dragSong.s,1)[0]
+      s.draggable=true
+      s.ondragstart=()=>dragSong={p:pi,s:si}
+      s.ondragover=e=>e.preventDefault()
+      s.ondrop=()=>{
+        if(!dragSong)return
+        const m=data[dragSong.p].songs.splice(dragSong.s,1)[0]
         data[pi].songs.splice(si,0,m)
-        dragSong = null
-        save(); render()
+        dragSong=null;save();render()
       }
     })
   })
 }
-const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
+render()
+loadPlaylist()
 
-  async function copyPlaylistLink(index){
+  const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
+
+async function copyPlaylistLink(index){
   const pl = data[index]
   if(!pl || !pl.songs.length){
     tg.showToast?.("Playlist kosong")
@@ -659,61 +630,11 @@ const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
 
   tg.showToast?.("Link copied 🎶")
 }
-async function sharePlaylist(index){
-  alert("Share clicked")
-
-  const pl = data[index]
-  if(!pl || !pl.songs.length){
-    alert("Playlist kosong")
-    return
-  }
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(pl)
-  })
-
-  const { id } = await res.json()
-
-  const BOT_USERNAME = "ethersoundbot"
-  const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${id}`
-
-tg.openTelegramLink(
-  `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
-)
-}
-  async function importSharedPlaylist(){
-  const id = tg?.initDataUnsafe?.start_param
-  if(!id) return
-
-  const res = await fetch(API_URL + "?id=" + id)
-  if(!res.ok) return
-
-  const decoded = await res.json()
-
-  data.push({
-    name: decoded.name,
-    songs: decoded.songs,
-    open: true
-  })
-
-  save()
-  render()
-  alert("Playlist imported 🎶")
-}
-
-  loadPlaylist().then(importSharedPlaylist)
-
+  
 </script>
 
 </body>
 </html>
-
-
-
-
-
 
 
 
