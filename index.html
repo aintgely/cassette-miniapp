@@ -610,28 +610,20 @@ function enableDrag(){
 }
 function sharePlaylist(index){
   const pl = data[index]
-  if(!pl || !pl.songs.length){
-    alert("Playlist kosong")
-    return
-  }
+  if(!pl || !pl.songs.length) return alert("Playlist kosong")
 
-  const payload = btoa(
-    encodeURIComponent(
-      JSON.stringify({
-        name: pl.name,
-        songs: pl.songs
-      })
-    )
+  const id = "pl_" + Date.now()
+
+  tg.CloudStorage.setItem(
+    "shared_" + id,
+    JSON.stringify(pl)
   )
 
-  // 🔴 ISI DENGAN USERNAME BOT KAMU (tanpa @)
   const BOT_USERNAME = "ethersoundbot"
-
-  // ✅ INI DIA TEMPAT startapp DIPAKAI
-  const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${payload}`
+  const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${id}`
 
   tg.openTelegramLink(
-    `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=🎶 Playlist: ${encodeURIComponent(pl.name)}`
+    `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
   )
 }
 
@@ -643,34 +635,31 @@ loadPlaylist().then(() => {
 
 /* ===== IMPORT SHARED PLAYLIST ===== */
 function importSharedPlaylist(){
-  const startParam = tg?.initDataUnsafe?.start_param
-  if(!startParam) return
+  const id = tg?.initDataUnsafe?.start_param
+  if(!id) return
 
-  try{
-    const decoded = JSON.parse(
-      decodeURIComponent(atob(startParam))
-    )
+  tg.CloudStorage.getItem("shared_" + id, (err, value)=>{
+    if(err || !value) return
 
-    const exists = data.some(p => p.name === decoded.name)
-    if(!exists){
-      data.push({
-        name: decoded.name,
-        songs: decoded.songs,
-        open: true
-      })
-      save()
-      render()
-      alert("Playlist imported 🎶")
-    }
-  }catch(e){
-    console.error("Invalid shared playlist", e)
-  }
+    const decoded = JSON.parse(value)
+
+    data.push({
+      name: decoded.name,
+      songs: decoded.songs,
+      open: true
+    })
+
+    save()
+    render()
+    alert("Playlist imported 🎶")
+  })
 }
 
 </script>
 
 </body>
 </html>
+
 
 
 
