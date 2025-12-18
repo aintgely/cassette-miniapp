@@ -370,6 +370,7 @@ input{
     </div>
 
     <div class="controls">
+      <button onclick="sharePlaylist()">🔗</button>
       <button onclick="prev()">⏮</button>
       <button id="playBtn" onclick="togglePlay()">▶</button>
       <button onclick="next()">⏭</button>
@@ -575,6 +576,42 @@ function setStyle(i){
     .classList
     .toggle("open")
 }
+ function sharePlaylist(){
+  const payload = btoa(
+    encodeURIComponent(
+      JSON.stringify(data)
+    )
+  )
+
+  const text =
+`🎧 Éthersound Playlist
+
+Tap to import this playlist:
+ethersound://import?data=${payload}`
+
+  tg.share({
+    text
+  })
+}
+  function checkImport(){
+  const hash = location.hash
+  if(!hash.includes("import")) return
+
+  try{
+    const encoded = hash.split("data=")[1]
+    const decoded = JSON.parse(
+      decodeURIComponent(atob(encoded))
+    )
+
+    if(confirm("Import this playlist to Éthersound?")){
+      data = decoded
+      save()
+      render()
+    }
+  }catch(e){
+    console.warn("Invalid import data")
+  }
+}
 
 applyStyle()
 
@@ -606,11 +643,13 @@ function enableDrag(){
 }
 render()
 loadPlaylist()
+checkImport()
   
 </script>
 
 </body>
 </html>
+
 
 
 
