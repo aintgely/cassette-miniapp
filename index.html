@@ -576,38 +576,46 @@ function setStyle(i){
     .classList
     .toggle("open")
 }
- function sharePlaylist(){
+  function sharePlaylist(){
   const payload = btoa(
     encodeURIComponent(
-      JSON.stringify(data)
+      JSON.stringify({
+  playlists: data,
+  sharedBy: tg.initDataUnsafe?.user?.username || "someone"
+})
     )
   )
 
-  const text =
+  const url =
+    location.origin + "/#import=" + payload
+
+  tg.share({
+    text:
 `🎧 Éthersound Playlist
 
 Tap to import this playlist:
-ethersound://import?data=${payload}`
-
-  tg.share({
-    text
+${url}`
   })
 }
-  function checkImport(){
+function checkImport(){
   const hash = location.hash
-  if(!hash.includes("import")) return
+  if(!hash.includes("import=")) return
 
   try{
-    const encoded = hash.split("data=")[1]
+    const encoded = hash.split("import=")[1]
     const decoded = JSON.parse(
       decodeURIComponent(atob(encoded))
     )
 
-    if(confirm("Import this playlist to Éthersound?")){
-      data = decoded
-      save()
-      render()
-    }
+const from = decoded.sharedBy
+  ? `@${decoded.sharedBy}`
+  : "someone"
+
+if(confirm(`Import playlist shared by ${from}?`)){
+  data = decoded.playlists || decoded
+  save()
+  render()
+}
   }catch(e){
     console.warn("Invalid import data")
   }
@@ -649,6 +657,7 @@ checkImport()
 
 </body>
 </html>
+
 
 
 
