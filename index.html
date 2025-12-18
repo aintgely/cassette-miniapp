@@ -631,33 +631,35 @@ loadPlaylist().then(() => {
   }
 })
   
-  const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
-
 async function copyPlaylistLink(index){
   const pl = data[index]
   if(!pl || !pl.songs.length){
-    tg.showToast?.("Playlist kosong")
+    tg.showToast?.("Playlist kosong") || alert("Playlist kosong")
     return
   }
 
-  const res = await fetch(API_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(pl)
-  })
+  const payload = btoa(
+    encodeURIComponent(JSON.stringify({
+      name: pl.name,
+      songs: pl.songs
+    }))
+  )
 
-  const { id } = await res.json()
+  const link = `https://t.me/ethersoundbot?startapp=${payload}`
 
-  const link = `https://t.me/ethersoundbot?startapp=${id}`
-  await navigator.clipboard.writeText(link)
-
-  tg.showToast?.("Link copied 🎶")
+  try{
+    await navigator.clipboard.writeText(link)
+    tg.showToast?.("Link copied 🎶") || alert("Link copied 🎶")
+  }catch{
+    alert(link)
+  }
 }
   
 </script>
 
 </body>
 </html>
+
 
 
 
