@@ -608,16 +608,23 @@ function enableDrag(){
     })
   })
 }
-function sharePlaylist(index){
+const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
+
+async function sharePlaylist(index){
   const pl = data[index]
-  if(!pl || !pl.songs.length) return alert("Playlist kosong")
+  if(!pl || !pl.songs.length){
+    alert("Playlist kosong")
+    return
+  }
 
-  const id = "pl_" + Date.now()
+  // SIMPAN KE API
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pl)
+  })
 
-  tg.CloudStorage.setItem(
-    "shared_" + id,
-    JSON.stringify(pl)
-  )
+  const { id } = await res.json()
 
   const BOT_USERNAME = "ethersoundbot"
   const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${id}`
@@ -626,39 +633,33 @@ function sharePlaylist(index){
     `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
   )
 }
-
-render()
-
-loadPlaylist().then(() => {
-  importSharedPlaylist()
-})
-
-/* ===== IMPORT SHARED PLAYLIST ===== */
-function importSharedPlaylist(){
+  async function importSharedPlaylist(){
   const id = tg?.initDataUnsafe?.start_param
   if(!id) return
 
-  tg.CloudStorage.getItem("shared_" + id, (err, value)=>{
-    if(err || !value) return
+  const res = await fetch(API_URL + "?id=" + id)
+  if(!res.ok) return
 
-    const decoded = JSON.parse(value)
+  const decoded = await res.json()
 
-    data.push({
-      name: decoded.name,
-      songs: decoded.songs,
-      open: true
-    })
-
-    save()
-    render()
-    alert("Playlist imported 🎶")
+  data.push({
+    name: decoded.name,
+    songs: decoded.songs,
+    open: true
   })
+
+  save()
+  render()
+  alert("Playlist imported 🎶")
 }
+
+  loadPlaylist().then(importSharedPlaylist)
 
 </script>
 
 </body>
 </html>
+
 
 
 
