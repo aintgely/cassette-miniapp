@@ -376,6 +376,15 @@ input{
       <button onclick="shuffle()">🔀</button>
     </div>
 
+    <!-- 🔍 SEARCH SONG -->
+<div class="input">
+  <input
+    id="searchInput"
+    placeholder="Search song…"
+    oninput="render()"
+  >
+</div>
+
     <div id="playlists"></div>
     <div onclick="addPlaylist()">＋ Add Playlist</div>
 <div class="style-picker">
@@ -433,6 +442,7 @@ const playBtn=document.getElementById("playBtn")
 const playlistsEl=document.getElementById("playlists")
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
+const searchInput = document.getElementById("searchInput")
 
 function save(){
   localStorage.setItem("cassettePlaylists",JSON.stringify(data))
@@ -494,6 +504,9 @@ function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
 
 function render(){
   playlistsEl.innerHTML=""
+
+  const q = searchInput?.value.toLowerCase() || ""
+
   data.forEach((pl,pi)=>{
     const box=document.createElement("div")
     box.className="folder"+(pl.open?" open":"")
@@ -507,18 +520,24 @@ function render(){
       </div>
       <div class="songs"></div>
     `
+
     const list=box.querySelector(".songs")
-    pl.songs.forEach((s,si)=>{
-      const row=document.createElement("div")
-      row.className="song"
-      row.innerHTML=`
-        <span onclick="playSong(${pi},${si})">${s.title}</span>
-        <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
-      `
-      list.appendChild(row)
-    })
+
+    pl.songs
+      .filter(s => s.title.toLowerCase().includes(q))
+      .forEach((s,si)=>{
+        const row=document.createElement("div")
+        row.className="song"
+        row.innerHTML=`
+          <span onclick="playSong(${pi},${si})">${s.title}</span>
+          <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
+        `
+        list.appendChild(row)
+      })
+
     playlistsEl.appendChild(box)
   })
+
   enableDrag()
 }
 render()
@@ -611,3 +630,4 @@ loadPlaylist()
 
 </body>
 </html>
+
