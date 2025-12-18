@@ -112,16 +112,6 @@ body{
 .player.open.settled .cassette{
   transform:rotate(0) rotateX(0) translateY(0) scale(1);
 }
-.open-area{
-  position:absolute;
-  inset:0;
-  z-index:5;
-}
-.open-area{
-  position:absolute;
-  inset:0;
-  z-index:5;
-}
 
 /* SHINE */
 .shine{
@@ -352,33 +342,26 @@ input{
 
 <div class="player" id="playerWrap">
 
- <div class="cassette">
-   
-<div class="cassette">
+  <div class="cassette" onclick="togglePanel()">
+    <span class="shine"></span>
+    <span class="screw tl"></span>
+    <span class="screw tr"></span>
+    <span class="screw bl"></span>
+    <span class="screw br"></span>
 
-  <!-- AREA KLIK KHUSUS UNTUK BUKA PANEL -->
-  <div class="open-area" onclick="togglePanel()"></div>
+    <div class="cassette-label">
+      <span>SIDE A</span>
+      <span>CD it I</span>
+      <span>29</span>
+    </div>
 
-  <span class="shine"></span>
-  <span class="screw tl"></span>
-  <span class="screw tr"></span>
-  <span class="screw bl"></span>
-  <span class="screw br"></span>
-
-  <div class="cassette-label">
-    <span>SIDE A</span>
-    <span>CD it I</span>
-    <span>29</span>
-  </div>
-
-  <div class="window">
-    <div class="reels">
-      <div class="reel" id="reelL"><span class="hub"></span></div>
-      <div class="reel" id="reelR"><span class="hub"></span></div>
+    <div class="window">
+      <div class="reels">
+        <div class="reel" id="reelL"><span class="hub"></span></div>
+        <div class="reel" id="reelR"><span class="hub"></span></div>
+      </div>
     </div>
   </div>
-
-</div>
 
   <div class="panel">
     <div class="input">
@@ -387,7 +370,6 @@ input{
     </div>
 
     <div class="controls">
-     <button onclick="event.stopPropagation(); sharePlaylist()">🔗</button>
       <button onclick="prev()">⏮</button>
       <button id="playBtn" onclick="togglePlay()">▶</button>
       <button onclick="next()">⏭</button>
@@ -593,61 +575,6 @@ function setStyle(i){
     .classList
     .toggle("open")
 }
-function sharePlaylist(){
-  const payload = btoa(
-    encodeURIComponent(
-      JSON.stringify({
-        playlists: data,
-        sharedBy: tg.initDataUnsafe?.user?.username || "someone"
-      })
-    )
-  )
-
-  const url =
-    location.origin + "/#import=" + payload
-
-  const shareUrl =
-    "https://t.me/share/url?" +
-    "url=" + encodeURIComponent(url) +
-    "&text=" + encodeURIComponent("🎧 Éthersound Playlist")
-
-  tg.openTelegramLink(shareUrl)
-}
-
-  const url =
-    location.origin + "/#import=" + payload
-
-  tg.share({
-    text:
-`🎧 Éthersound Playlist
-
-Tap to import this playlist:
-${url}`
-  })
-}
-function checkImport(){
-  const hash = location.hash
-  if(!hash.includes("import=")) return
-
-  try{
-    const encoded = hash.split("import=")[1]
-    const decoded = JSON.parse(
-      decodeURIComponent(atob(encoded))
-    )
-
-const from = decoded.sharedBy
-  ? `@${decoded.sharedBy}`
-  : "someone"
-
-if(confirm(`Import playlist shared by ${from}?`)){
-  data = decoded.playlists || decoded
-  save()
-  render()
-}
-  }catch(e){
-    console.warn("Invalid import data")
-  }
-}
 
 applyStyle()
 
@@ -679,18 +606,8 @@ function enableDrag(){
 }
 render()
 loadPlaylist()
-checkImport()
   
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
