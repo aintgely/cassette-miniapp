@@ -500,11 +500,10 @@ function render(){
     box.innerHTML=`
       <div class="folder-header" onclick="toggleFolder(${pi})">
         <span>${pl.name}</span>
-<div class="folder-actions" onclick="event.stopPropagation()">
-  <span onclick="copyPlaylistLink(${pi})">📋</span>
-  <span onclick="renamePlaylist(${pi})">✎</span>
-  <span onclick="deletePlaylist(${pi})">✕</span>
-</div>
+        <div class="folder-actions" onclick="event.stopPropagation()">
+          <span onclick="renamePlaylist(${pi})">✎</span>
+          <span onclick="deletePlaylist(${pi})">✕</span>
+        </div>
       </div>
       <div class="songs"></div>
     `
@@ -606,60 +605,9 @@ function enableDrag(){
   })
 }
 render()
-loadPlaylist().then(() => {
-  const payload = tg.initDataUnsafe?.start_param
-  if(!payload) return
-
-  let decoded
-  try{
-    decoded = JSON.parse(
-      decodeURIComponent(atob(payload))
-    )
-  }catch(e){
-    console.error("Invalid playlist payload")
-    return
-  }
-
-  if(confirm(`Import playlist "${decoded.name}"?`)){
-    data.push({
-      name: decoded.name,
-      songs: decoded.songs,
-      open: true
-    })
-    save()
-    render()
-  }
-})
-  
-async function copyPlaylistLink(index){
-  const pl = data[index]
-  if(!pl || !pl.songs.length){
-    tg.showToast?.("Playlist kosong") || alert("Playlist kosong")
-    return
-  }
-
-  const payload = btoa(
-    encodeURIComponent(JSON.stringify({
-      name: pl.name,
-      songs: pl.songs
-    }))
-  )
-
-  const link = `https://t.me/ethersoundbot?startapp=${payload}`
-
-  try{
-    await navigator.clipboard.writeText(link)
-    tg.showToast?.("Link copied 🎶") || alert("Link copied 🎶")
-  }catch{
-    alert(link)
-  }
-}
+loadPlaylist()
   
 </script>
 
 </body>
 </html>
-
-
-
-
