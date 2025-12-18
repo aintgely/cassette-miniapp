@@ -65,6 +65,31 @@ body{
   transition:.9s cubic-bezier(.22,1,.36,1);
 }
 
+/* ===== SEARCH BAR ===== */
+.search-wrap{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transform:translateY(-6px);
+  transition:
+    max-height .4s ease,
+    opacity .3s ease,
+    transform .3s ease;
+}
+
+.search-wrap.open{
+  max-height:60px;
+  opacity:1;
+  transform:translateY(0);
+}
+
+.search-wrap input{
+  width:100%;
+  padding:10px 14px;
+  border-radius:16px;
+  border:1px solid rgba(0,0,0,.15);
+}
+  
 /* 🎬 BACKGROUND LAYER (HIDDEN INIT) */
 .player::before{
   content:"";
@@ -376,8 +401,8 @@ input{
       <button onclick="shuffle()">🔀</button>
     </div>
 
-    <!-- 🔍 SEARCH SONG -->
-<div class="input">
+<!-- 🔍 SEARCH BAR -->
+<div class="search-wrap" id="searchWrap">
   <input
     id="searchInput"
     placeholder="Search song…"
@@ -458,6 +483,18 @@ function togglePanel(){
   }
 }
 
+  function toggleSearch(){
+  const w = document.getElementById("searchWrap")
+  w.classList.toggle("open")
+
+  if(w.classList.contains("open")){
+    setTimeout(()=>searchInput.focus(),150)
+  }else{
+    searchInput.value=""
+    render()
+  }
+}
+
 function extractId(u){
   if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
   return u.split("v=")[1]?.split("&")[0]
@@ -511,12 +548,13 @@ function render(){
     const box=document.createElement("div")
     box.className="folder"+(pl.open?" open":"")
     box.innerHTML=`
-      <div class="folder-header" onclick="toggleFolder(${pi})">
-        <span>${pl.name}</span>
-        <div class="folder-actions" onclick="event.stopPropagation()">
-          <span onclick="renamePlaylist(${pi})">✎</span>
-          <span onclick="deletePlaylist(${pi})">✕</span>
-        </div>
+<div class="folder-header" onclick="toggleFolder(${pi})">
+  <span>${pl.name}</span>
+  <div class="folder-actions" onclick="event.stopPropagation()">
+    <span onclick="toggleSearch()">🔍</span>
+    <span onclick="renamePlaylist(${pi})">✎</span>
+    <span onclick="deletePlaylist(${pi})">✕</span>
+  </div>
       </div>
       <div class="songs"></div>
     `
@@ -630,5 +668,6 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
