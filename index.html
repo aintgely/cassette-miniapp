@@ -112,6 +112,16 @@ body{
 .player.open.settled .cassette{
   transform:rotate(0) rotateX(0) translateY(0) scale(1);
 }
+.open-area{
+  position:absolute;
+  inset:0;
+  z-index:5;
+}
+.open-area{
+  position:absolute;
+  inset:0;
+  z-index:5;
+}
 
 /* SHINE */
 .shine{
@@ -342,26 +352,33 @@ input{
 
 <div class="player" id="playerWrap">
 
-  <div class="cassette" onclick="togglePanel()">
-    <span class="shine"></span>
-    <span class="screw tl"></span>
-    <span class="screw tr"></span>
-    <span class="screw bl"></span>
-    <span class="screw br"></span>
+ <div class="cassette">
+   
+<div class="cassette">
 
-    <div class="cassette-label">
-      <span>SIDE A</span>
-      <span>CD it I</span>
-      <span>29</span>
-    </div>
+  <!-- AREA KLIK KHUSUS UNTUK BUKA PANEL -->
+  <div class="open-area" onclick="togglePanel()"></div>
 
-    <div class="window">
-      <div class="reels">
-        <div class="reel" id="reelL"><span class="hub"></span></div>
-        <div class="reel" id="reelR"><span class="hub"></span></div>
-      </div>
+  <span class="shine"></span>
+  <span class="screw tl"></span>
+  <span class="screw tr"></span>
+  <span class="screw bl"></span>
+  <span class="screw br"></span>
+
+  <div class="cassette-label">
+    <span>SIDE A</span>
+    <span>CD it I</span>
+    <span>29</span>
+  </div>
+
+  <div class="window">
+    <div class="reels">
+      <div class="reel" id="reelL"><span class="hub"></span></div>
+      <div class="reel" id="reelR"><span class="hub"></span></div>
     </div>
   </div>
+
+</div>
 
   <div class="panel">
     <div class="input">
@@ -668,6 +685,7 @@ checkImport()
 
 </body>
 </html>
+
 
 
 
