@@ -522,7 +522,6 @@ box.innerHTML = `
   })
   enableDrag()
 }
-render()
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
@@ -579,28 +578,32 @@ function setStyle(i){
 
 applyStyle()
 
-/* ===== DRAG LOGIC ===== */
-let dragSong=null,dragPlaylist=null
+  /* ===== DRAG LOGIC ===== */
+let dragSong=null, dragPlaylist=null
+
 function enableDrag(){
   document.querySelectorAll(".folder").forEach((f,pi)=>{
-    f.draggable=true
-    f.ondragstart=()=>dragPlaylist=pi
-    f.ondragover=e=>e.preventDefault()
-    f.ondrop=()=>{
-      if(dragPlaylist===null||dragPlaylist===pi)return
-      const m=data.splice(dragPlaylist,1)[0]
+    f.draggable = true
+    f.ondragstart = () => dragPlaylist = pi
+    f.ondragover = e => e.preventDefault()
+    f.ondrop = () => {
+      if(dragPlaylist===null || dragPlaylist===pi) return
+      const m = data.splice(dragPlaylist,1)[0]
       data.splice(pi,0,m)
-      dragPlaylist=null;save();render()
+      dragPlaylist = null
+      save(); render()
     }
+
     f.querySelectorAll(".song").forEach((s,si)=>{
-      s.draggable=true
-      s.ondragstart=()=>dragSong={p:pi,s:si}
-      s.ondragover=e=>e.preventDefault()
-      s.ondrop=()=>{
-        if(!dragSong)return
-        const m=data[dragSong.p].songs.splice(dragSong.s,1)[0]
+      s.draggable = true
+      s.ondragstart = () => dragSong = {p:pi,s:si}
+      s.ondragover = e => e.preventDefault()
+      s.ondrop = () => {
+        if(!dragSong) return
+        const m = data[dragSong.p].songs.splice(dragSong.s,1)[0]
         data[pi].songs.splice(si,0,m)
-        dragSong=null;save();render()
+        dragSong = null
+        save(); render()
       }
     })
   })
@@ -636,16 +639,14 @@ function sharePlaylist(index){
   }
 }
 
-/* ===== DRAG LOGIC ===== */
-let dragSong=null,dragPlaylist=null
-function enableDrag(){
-  ...
-}
-
 render()
-loadPlaylist()
 
-  (function importSharedPlaylist(){
+loadPlaylist().then(() => {
+  importSharedPlaylist()
+})
+
+/* ===== IMPORT SHARED PLAYLIST ===== */
+function importSharedPlaylist(){
   const params = new URLSearchParams(window.location.search)
   const shared = params.get("share")
   if(!shared) return
@@ -669,10 +670,11 @@ loadPlaylist()
   }catch(e){
     console.error("Invalid shared playlist", e)
   }
-})()
+}
 
 </script>
 
 </body>
 </html>
+
 
