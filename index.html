@@ -370,7 +370,7 @@ input{
     </div>
 
     <div class="controls">
-      <button onclick="sharePlaylist()">🔗</button>
+     <button onclick="event.stopPropagation(); sharePlaylist()">🔗</button>
       <button onclick="prev()">⏮</button>
       <button id="playBtn" onclick="togglePlay()">▶</button>
       <button onclick="next()">⏭</button>
@@ -668,6 +668,7 @@ checkImport()
 
 </body>
 </html>
+
 
 
 
