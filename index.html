@@ -606,8 +606,31 @@ function enableDrag(){
   })
 }
 render()
-loadPlaylist()
+loadPlaylist().then(() => {
+  const payload = tg.initDataUnsafe?.start_param
+  if(!payload) return
 
+  let decoded
+  try{
+    decoded = JSON.parse(
+      decodeURIComponent(atob(payload))
+    )
+  }catch(e){
+    console.error("Invalid playlist payload")
+    return
+  }
+
+  if(confirm(`Import playlist "${decoded.name}"?`)){
+    data.push({
+      name: decoded.name,
+      songs: decoded.songs,
+      open: true
+    })
+    save()
+    render()
+  }
+})
+  
   const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
 
 async function copyPlaylistLink(index){
