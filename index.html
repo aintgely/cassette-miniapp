@@ -523,7 +523,7 @@ box.innerHTML = `
   <div class="folder-header" onclick="toggleFolder(${pi})">
     <span>${pl.name}</span>
     <div class="folder-actions">
-      <button class="share-btn" data-i="${pi}">🔗</button>
+      <button class="copy-btn" data-i="${pi}">📋</button>
       <button onclick="renamePlaylist(${pi})">✎</button>
       <button onclick="deletePlaylist(${pi})">✕</button>
     </div>
@@ -544,14 +544,13 @@ playlistsEl.appendChild(box)
 })
 enableDrag()
 
-document.querySelectorAll(".share-btn").forEach(btn=>{
+document.querySelectorAll(".copy-btn").forEach(btn=>{
   btn.onclick = e => {
     e.stopPropagation()
     const i = btn.dataset.i
-    sharePlaylist(i)
+    copyPlaylistLink(i)
   }
 })
-}
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
@@ -640,6 +639,26 @@ function enableDrag(){
 }
 const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
 
+  async function copyPlaylistLink(index){
+  const pl = data[index]
+  if(!pl || !pl.songs.length){
+    tg.showToast?.("Playlist kosong")
+    return
+  }
+
+  const res = await fetch(API_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(pl)
+  })
+
+  const { id } = await res.json()
+
+  const link = `https://t.me/ethersoundbot?startapp=${id}`
+  await navigator.clipboard.writeText(link)
+
+  tg.showToast?.("Link copied 🎶")
+}
 async function sharePlaylist(index){
   alert("Share clicked")
 
@@ -690,6 +709,7 @@ tg.openTelegramLink(
 
 </body>
 </html>
+
 
 
 
