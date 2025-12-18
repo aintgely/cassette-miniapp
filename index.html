@@ -523,17 +523,17 @@ function render(){
 
     const list=box.querySelector(".songs")
 
-    pl.songs
-      .filter(s => s.title.toLowerCase().includes(q))
-      .forEach((s,si)=>{
-        const row=document.createElement("div")
-        row.className="song"
-        row.innerHTML=`
-          <span onclick="playSong(${pi},${si})">${s.title}</span>
-          <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
-        `
-        list.appendChild(row)
-      })
+pl.songs.forEach((s,si)=>{
+  if(!s.title.toLowerCase().includes(q)) return
+
+  const row=document.createElement("div")
+  row.className="song"
+  row.innerHTML=`
+    <span onclick="playSong(${pi},${si})">${s.title}</span>
+    <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
+  `
+  list.appendChild(row)
+})
 
     playlistsEl.appendChild(box)
   })
@@ -630,4 +630,5 @@ loadPlaylist()
 
 </body>
 </html>
+
 
