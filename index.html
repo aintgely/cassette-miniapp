@@ -10,6 +10,7 @@
 <script>
 /* === STEP 1: Telegram User ID === */
 const tg = window.Telegram.WebApp
+tg.expand()
 const uid = tg?.initDataUnsafe?.user?.id || "guest"
 
   /* === TELEGRAM CLOUD STORAGE === */
@@ -500,10 +501,10 @@ function render(){
 box.innerHTML = `
   <div class="folder-header" onclick="toggleFolder(${pi})">
     <span>${pl.name}</span>
-    <div class="folder-actions" onclick="event.stopPropagation()">
-      <span onclick="sharePlaylist(${pi})">🔗</span>
-      <span onclick="renamePlaylist(${pi})">✎</span>
-      <span onclick="deletePlaylist(${pi})">✕</span>
+    <div class="folder-actions">
+      <button class="share-btn" data-i="${pi}">🔗</button>
+      <button onclick="renamePlaylist(${pi})">✎</button>
+      <button onclick="deletePlaylist(${pi})">✕</button>
     </div>
   </div>
   <div class="songs"></div>
@@ -518,9 +519,17 @@ box.innerHTML = `
       `
       list.appendChild(row)
     })
-    playlistsEl.appendChild(box)
-  })
-  enableDrag()
+playlistsEl.appendChild(box)
+})
+enableDrag()
+
+document.querySelectorAll(".share-btn").forEach(btn=>{
+  btn.onclick = e => {
+    e.stopPropagation()
+    const i = btn.dataset.i
+    sharePlaylist(i)
+  }
+})
 }
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
@@ -611,13 +620,14 @@ function enableDrag(){
 const API_URL = "https://cassette-miniapp-giih.vercel.app/api/share"
 
 async function sharePlaylist(index){
+  alert("Share clicked")
+
   const pl = data[index]
   if(!pl || !pl.songs.length){
     alert("Playlist kosong")
     return
   }
 
-  // SIMPAN KE API
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -629,10 +639,9 @@ async function sharePlaylist(index){
   const BOT_USERNAME = "ethersoundbot"
   const deepLink = `https://t.me/${BOT_USERNAME}?startapp=${id}`
 
-  tg.openTelegramLink(
-    `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
-  )
-}
+tg.openTelegramLink(
+  `https://t.me/share/url?url=${encodeURIComponent(deepLink)}`
+)
   async function importSharedPlaylist(){
   const id = tg?.initDataUnsafe?.start_param
   if(!id) return
@@ -659,6 +668,7 @@ async function sharePlaylist(index){
 
 </body>
 </html>
+
 
 
 
