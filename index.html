@@ -112,6 +112,26 @@ body{
   transform:scale(1);
 }
 
+  /* ===== ICON BUTTON (PNG ONLY, NO BACKGROUND) ===== */
+.icon-btn{
+  background:none !important;
+  border:none !important;
+  padding:0;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.icon-btn img{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  pointer-events:none;
+}
+
 /* ===== CASSETTE ===== */
 .cassette{
   position:relative;
@@ -394,12 +414,23 @@ input{
       <button onclick="addSong()">＋</button>
     </div>
 
-    <div class="controls">
-      <button onclick="prev()">⏮</button>
-      <button id="playBtn" onclick="togglePlay()">▶</button>
-      <button onclick="next()">⏭</button>
-      <button onclick="shuffle()">🔀</button>
-    </div>
+<div class="controls">
+  <button class="icon-btn" onclick="prev()">
+    <img src="back.png">
+  </button>
+
+  <button class="icon-btn" id="playBtn" onclick="togglePlay()">
+    <img src="play.png">
+  </button>
+
+  <button class="icon-btn" onclick="next()">
+    <img src="next.png">
+  </button>
+
+  <button class="icon-btn" onclick="shuffle()">
+    <img src="shuffle.png">
+  </button>
+</div>
 
 <!-- 🔍 SEARCH BAR -->
 <div class="search-wrap" id="searchWrap">
@@ -525,28 +556,28 @@ function loadVideo(id){
   cassette.classList.add("playing")
   reelL.classList.add("spin")
   reelR.classList.add("spin")
-  playBtn.textContent="⏸"
+  playBtn.innerHTML = '<img src="pause.png">'
 }
 function togglePlay(){
   const song=data[current.p]?.songs[current.s]
   if(!song)return
   const id=extractId(song.url)
   if(loadedId!==id){loadVideo(id);return}
-  if(isPlaying){
-    ytPlayer.pauseVideo()
-    cassette.classList.remove("playing")
-    reelL.classList.remove("spin")
-    reelR.classList.remove("spin")
-    playBtn.textContent="▶"
-    isPlaying=false
-  }else{
-    ytPlayer.playVideo()
-    cassette.classList.add("playing")
-    reelL.classList.add("spin")
-    reelR.classList.add("spin")
-    playBtn.textContent="⏸"
-    isPlaying=true
-  }
+if(isPlaying){
+  ytPlayer.pauseVideo()
+  cassette.classList.remove("playing")
+  reelL.classList.remove("spin")
+  reelR.classList.remove("spin")
+  playBtn.innerHTML = '<img src="play.png">'
+  isPlaying=false
+}else{
+  ytPlayer.playVideo()
+  cassette.classList.add("playing")
+  reelL.classList.add("spin")
+  reelR.classList.add("spin")
+  playBtn.innerHTML = '<img src="pause.png">'
+  isPlaying=true
+}
 }
 function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
 
@@ -562,8 +593,13 @@ function render(){
 <div class="folder-header" onclick="toggleFolder(${pi})">
   <span>${pl.name}</span>
   <div class="folder-actions" onclick="event.stopPropagation()">
-    <span onclick="toggleSearch()">🔍</span>
-    <span onclick="renamePlaylist(${pi})">✎</span>
+<span onclick="toggleSearch()">
+  <img src="search.png" width="16">
+</span>
+
+<span onclick="renamePlaylist(${pi})">
+  <img src="edit.png" width="16">
+</span>
     <span onclick="deletePlaylist(${pi})">✕</span>
   </div>
       </div>
@@ -679,6 +715,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
