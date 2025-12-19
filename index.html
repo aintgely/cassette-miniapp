@@ -273,6 +273,32 @@ input{
   background:#444;color:#fff;
 }
 
+  /* ===== TAPE PROGRESS BAR ===== */
+.tape-progress{
+  position:relative;
+  height:4px;
+  margin:10px 24px 16px;
+  background:rgba(0,0,0,.15);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.tape-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(
+    90deg,
+    #ffd9a0,
+    #ffb566,
+    #ffd9a0
+  );
+  border-radius:999px;
+  box-shadow:
+    0 0 6px rgba(255,180,90,.7),
+    inset 0 0 2px rgba(255,255,255,.6);
+  transition:width .25s linear;
+}
+
 /* ===== STYLE PICKER ===== */
 .style-picker{
   margin-top:28px;
@@ -432,6 +458,11 @@ input{
   </button>
 </div>
 
+    <!-- 🎚️ TAPE PROGRESS BAR -->
+<div class="tape-progress">
+  <div class="tape-bar" id="tapeBar"></div>
+</div>
+
 <!-- 🔍 SEARCH BAR -->
 <div class="search-wrap" id="searchWrap">
   <input
@@ -496,6 +527,8 @@ const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
 const playBtn=document.getElementById("playBtn")
 const playlistsEl=document.getElementById("playlists")
+const tapeBar = document.getElementById("tapeBar")
+let progressTimer = null
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
 const searchInput = document.getElementById("searchInput")
@@ -557,6 +590,7 @@ function loadVideo(id){
   reelL.classList.add("spin")
   reelR.classList.add("spin")
   playBtn.innerHTML = '<img src="pause.png">'
+  startProgress()
 }
 function togglePlay(){
   const song=data[current.p]?.songs[current.s]
@@ -570,6 +604,7 @@ if(isPlaying){
   reelR.classList.remove("spin")
   playBtn.innerHTML = '<img src="play.png">'
   isPlaying=false
+  stopProgress()
 }else{
   ytPlayer.playVideo()
   cassette.classList.add("playing")
@@ -577,6 +612,7 @@ if(isPlaying){
   reelR.classList.add("spin")
   playBtn.innerHTML = '<img src="pause.png">'
   isPlaying=true
+  startProgress()
 }
 }
 function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
@@ -640,9 +676,26 @@ function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save(
 function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(n){data[i].name=n;save();render()}}
 function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);current={p:0,s:0};save();render()}
 function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
-function next(){if(!data[current.p].songs.length)return;current.s=(current.s+1)%data[current.p].songs.length;loadedId=null;togglePlay()}
-function prev(){if(!data[current.p].songs.length)return;current.s=Math.max(0,current.s-1);loadedId=null;togglePlay()}
-function shuffle(){if(!data[current.p].songs.length)return;current.s=Math.floor(Math.random()*data[current.p].songs.length);loadedId=null;togglePlay()}
+function next(){
+  if(!data[current.p].songs.length)return
+  tapeBar.style.width="0%"
+  current.s=(current.s+1)%data[current.p].songs.length
+  loadedId=null;togglePlay()
+}
+function prev(){
+  if(!data[current.p].songs.length)return
+  tapeBar.style.width = "0%"   // ⬅️ BARIS TAMBAHAN
+  current.s=Math.max(0,current.s-1)
+  loadedId=null
+  togglePlay()
+}
+function shuffle(){
+  if(!data[current.p].songs.length)return
+  tapeBar.style.width = "0%"   // ⬅️ BARIS TAMBAHAN
+  current.s=Math.floor(Math.random()*data[current.p].songs.length)
+  loadedId=null
+  togglePlay()
+}
 
 /* ===== CASSETTE STYLE PICKER ===== */
 const styles = [
@@ -682,6 +735,23 @@ function setStyle(i){
 
 applyStyle()
 
+  /* ===== TAPE PROGRESS LOGIC ===== */
+function startProgress(){
+  stopProgress()
+  progressTimer = setInterval(()=>{
+    if(!ytPlayer || !isPlaying) return
+    const dur = ytPlayer.getDuration()
+    const cur = ytPlayer.getCurrentTime()
+    if(!dur) return
+    tapeBar.style.width = (cur / dur * 100) + "%"
+  }, 500)
+}
+
+function stopProgress(){
+  clearInterval(progressTimer)
+  progressTimer = null
+}
+
 /* ===== DRAG LOGIC ===== */
 let dragSong=null,dragPlaylist=null
 function enableDrag(){
@@ -715,6 +785,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
