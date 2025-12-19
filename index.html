@@ -456,6 +456,11 @@ input{
   <button class="icon-btn" onclick="shuffle()">
     <img src="shuffle.png">
   </button>
+
+  <!-- 🔍 SEARCH BUTTON -->
+  <button class="icon-btn" onclick="toggleSearch()">
+    <img src="search.png">
+  </button>
 </div>
 
     <!-- 🎚️ TAPE PROGRESS BAR -->
@@ -547,14 +552,17 @@ function togglePanel(){
   }
 }
 
-  function toggleSearch(){
+function toggleSearch(){
   const w = document.getElementById("searchWrap")
   w.classList.toggle("open")
 
   if(w.classList.contains("open")){
+    searchInput.value=""
     setTimeout(()=>searchInput.focus(),150)
+    playerWrap.classList.add("searching")
   }else{
     searchInput.value=""
+    playerWrap.classList.remove("searching")
     render()
   }
 }
@@ -621,23 +629,27 @@ function render(){
   playlistsEl.innerHTML=""
 
   const q = searchInput?.value.toLowerCase() || ""
+  const searching = q.length > 0
 
   data.forEach((pl,pi)=>{
+    if(searching){
+  const hasMatch = pl.songs.some(s =>
+    s.title.toLowerCase().includes(q)
+  )
+  if(!hasMatch) return
+}
     const box=document.createElement("div")
-    box.className="folder"+(pl.open?" open":"")
+box.className =
+  "folder" + ((pl.open || searching) ? " open" : "")
     box.innerHTML=`
 <div class="folder-header" onclick="toggleFolder(${pi})">
   <span>${pl.name}</span>
-  <div class="folder-actions" onclick="event.stopPropagation()">
-<span onclick="toggleSearch()">
-  <img src="search.png" width="16">
-</span>
-
-<span onclick="renamePlaylist(${pi})">
-  <img src="edit.png" width="16">
-</span>
-    <span onclick="deletePlaylist(${pi})">✕</span>
-  </div>
+<div class="folder-actions" onclick="event.stopPropagation()">
+  <span onclick="renamePlaylist(${pi})">
+    <img src="edit.png" width="16">
+  </span>
+  <span onclick="deletePlaylist(${pi})">✕</span>
+</div>
       </div>
       <div class="songs"></div>
     `
@@ -785,6 +797,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
