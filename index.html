@@ -703,20 +703,21 @@ box.className =
 pl.songs.forEach((s,si)=>{
   if(!s.title.toLowerCase().includes(q)) return
 
-const isActive =
-  current.p === pi && current.s === si
+  const isActive =
+    current.p === pi && current.s === si
 
-const row = document.createElement("div")
-row.className = "song" + (isActive ? " active" : "")
-row.innerHTML = `
-  <span onclick="playSong(${pi},${si})">${s.title}</span>
-  <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
-`
+  const row = document.createElement("div")
+  row.className = "song" + (isActive ? " active" : "")
+  row.innerHTML = `
+    <span onclick="playSong(${pi},${si})">${s.title}</span>
+    <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
+  `
 
-list.appendChild(row)
+  list.appendChild(row)
+})
 
-    playlistsEl.appendChild(box)
-  })
+  playlistsEl.appendChild(box)
+})
 
   enableDrag()
 }
@@ -844,6 +845,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
