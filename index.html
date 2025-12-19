@@ -448,6 +448,55 @@ input{
   position:fixed;bottom:14px;left:16px;
   font-size:12px;opacity:.55;
 }
+
+  /* ===== MINI LIBRARY ===== */
+.library{
+  margin-top:16px;
+  border-radius:18px;
+  overflow:hidden;
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(10px);
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.library-handle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  font-size:12px;
+  letter-spacing:.08em;
+  cursor:pointer;
+  background:linear-gradient(180deg,#fafafa,#e6e6e6);
+}
+
+.library-handle .arrow{
+  transition:transform .35s ease;
+}
+
+.library.open .arrow{
+  transform:rotate(180deg);
+}
+
+.library-content{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .6s cubic-bezier(.22,1,.36,1);
+}
+
+.library.open .library-content{
+  max-height:420px;
+}
+
+.add-playlist{
+  text-align:center;
+  padding:10px;
+  font-size:13px;
+  opacity:.6;
+  cursor:pointer;
+}
+.add-playlist:hover{opacity:.9}
+
 </style>
 </head>
 
@@ -521,8 +570,18 @@ input{
   >
 </div>
 
+  <div class="library" id="library">
+  <div class="library-handle" onclick="toggleLibrary()">
+    <span>Library</span>
+    <span class="arrow">▴</span>
+  </div>
+
+  <div class="library-content">
     <div id="playlists"></div>
-    <div onclick="addPlaylist()">＋ Add Playlist</div>
+    <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
+  </div>
+</div>
+    
 <div class="style-picker">
 <div class="style-title" onclick="toggleStylePicker()">
   set your mood. ▾
@@ -634,6 +693,13 @@ async function fetchTitle(url){
   }catch{return "Unknown Title"}
 }
 
+  function toggleLibrary(){
+  document
+    .getElementById("library")
+    .classList
+    .toggle("open")
+}
+
 function loadVideo(id){
   ytPlayer.loadVideoById(id)
   loadedId=id
@@ -667,8 +733,15 @@ if(isPlaying){
   startProgress()
 }
 }
-function playSong(p,s){current={p,s};loadedId=null;togglePlay()}
+function playSong(p,s){
+  current={p,s}
+  loadedId=null
+  togglePlay()
 
+  document
+    .getElementById("library")
+    ?.classList.remove("open")
+}
 function render(){
   playlistsEl.innerHTML=""
 
@@ -845,6 +918,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
