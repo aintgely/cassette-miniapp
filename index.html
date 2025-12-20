@@ -580,12 +580,17 @@ input{
       <button onclick="addSong()">＋</button>
     </div>
 
-<!-- 🎵 NOW PLAYING -->
+<!-- 1️⃣ NOW PLAYING -->
 <div class="now-playing marquee" id="nowPlayingText">
   <span>—</span>
 </div>
 
-<!-- 🎛️ CONTROLS -->
+<!-- 2️⃣ PROGRESS BAR -->
+<div class="tape-progress">
+  <div class="tape-bar" id="tapeBar"></div>
+</div>
+
+<!-- 3️⃣ CONTROLS -->
 <div class="controls">
   <button class="icon-btn" onclick="toggleSearch()">
     <img src="search.png">
@@ -606,11 +611,6 @@ input{
   <button class="icon-btn" onclick="shuffle()">
     <img src="shuffle.png">
   </button>
-</div>
-
-<!-- 🎚️ PROGRESS -->
-<div class="tape-progress">
-  <div class="tape-bar" id="tapeBar"></div>
 </div>
 
   <div class="library" id="library">
@@ -1036,6 +1036,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
