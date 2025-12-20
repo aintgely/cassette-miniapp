@@ -580,8 +580,13 @@ input{
       <button onclick="addSong()">＋</button>
     </div>
 
-<div class="controls">  
-  <!-- 🔍 SEARCH BUTTON -->
+<!-- 🎵 NOW PLAYING -->
+<div class="now-playing marquee" id="nowPlayingText">
+  <span>—</span>
+</div>
+
+<!-- 🎛️ CONTROLS (CUMA SATU) -->
+<div class="controls">
   <button class="icon-btn" onclick="toggleSearch()">
     <img src="search.png">
   </button>
@@ -601,23 +606,11 @@ input{
   <button class="icon-btn" onclick="shuffle()">
     <img src="shuffle.png">
   </button>
-
 </div>
 
-<div class="now-playing" id="nowPlayingText">—</div>
-
-    <!-- 🎚️ TAPE PROGRESS BAR -->
+<!-- 🎚️ PROGRESS -->
 <div class="tape-progress">
   <div class="tape-bar" id="tapeBar"></div>
-</div>
-
-<!-- 🔍 SEARCH BAR -->
-<div class="search-wrap" id="searchWrap">
-  <input
-    id="searchInput"
-    placeholder="Search song…"
-    oninput="render()"
-  >
 </div>
 
   <div class="library" id="library">
@@ -1043,6 +1036,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
