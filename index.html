@@ -516,6 +516,14 @@ input{
   background:linear-gradient(180deg,#fff,#ececec);
 }
 
+  .library{
+  transition:transform .35s ease, opacity .35s ease;
+}
+.library:not(.open){
+  transform:translateY(6px);
+  opacity:.95;
+}
+
 .add-playlist{
   text-align:center;
   padding:10px;
@@ -700,15 +708,25 @@ function toggleSearch(){
   }
 }
 
-  document.addEventListener("keydown", e => {
+document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return
 
-  const wrap = document.getElementById("searchWrap")
-  if(!wrap?.classList.contains("open")) return
+  const searchWrap = document.getElementById("searchWrap")
+  const library = document.getElementById("library")
 
-  wrap.classList.remove("open")
-  searchInput.value = ""
-  render()
+  // 1️⃣ Tutup search dulu (prioritas)
+  if(searchWrap?.classList.contains("open")){
+    searchWrap.classList.remove("open")
+    searchInput.value = ""
+    render()
+    return
+  }
+
+  // 2️⃣ Kalau search tidak buka, tutup library
+  if(library?.classList.contains("open")){
+    library.classList.remove("open")
+    return
+  }
 })
 
 function extractId(u){
@@ -959,6 +977,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
