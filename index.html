@@ -321,6 +321,7 @@ input{
   opacity:.45;
   margin:6px 0 2px;
   letter-spacing:.06em;
+  transition:opacity .25s ease;
 }
 
   /* ===== TAPE PROGRESS BAR ===== */
@@ -582,7 +583,7 @@ input{
 
 </div>
 
-    <div class="now-playing">Now Playing</div>
+<div class="now-playing" id="nowPlayingText">—</div>
 
     <!-- 🎚️ TAPE PROGRESS BAR -->
 <div class="tape-progress">
@@ -668,6 +669,7 @@ let progressTimer = null
 const cassette=document.querySelector(".cassette")
 const playerWrap=document.getElementById("playerWrap")
 const searchInput = document.getElementById("searchInput")
+const nowPlayingText = document.getElementById("nowPlayingText")
 
 function save(){
   localStorage.setItem("cassettePlaylists",JSON.stringify(data))
@@ -764,6 +766,9 @@ if(isPlaying){
 function playSong(p,s){
   current={p,s}
   loadedId=null
+
+  nowPlayingText.textContent = data[p].songs[s].title  // 🎵 INI
+
   togglePlay()
 
   document
@@ -946,6 +951,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
