@@ -842,24 +842,32 @@ function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save(
 function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(n){data[i].name=n;save();render()}}
 function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);current={p:0,s:0};save();render()}
 function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
+function updateNowPlaying(){
+  const song = data[current.p]?.songs[current.s]
+  nowPlayingText.textContent = song ? song.title : "—"
+}
 function next(){
   if(!data[current.p].songs.length)return
   tapeBar.style.width="0%"
   current.s=(current.s+1)%data[current.p].songs.length
-  loadedId=null;togglePlay()
+  loadedId=null
+  updateNowPlaying()   // 🎵 TAMBAH INI
+  togglePlay()
 }
 function prev(){
   if(!data[current.p].songs.length)return
-  tapeBar.style.width = "0%"   // ⬅️ BARIS TAMBAHAN
+  tapeBar.style.width="0%"
   current.s=Math.max(0,current.s-1)
   loadedId=null
+  updateNowPlaying()   // 🎵 TAMBAH INI
   togglePlay()
 }
 function shuffle(){
   if(!data[current.p].songs.length)return
-  tapeBar.style.width = "0%"   // ⬅️ BARIS TAMBAHAN
+  tapeBar.style.width="0%"
   current.s=Math.floor(Math.random()*data[current.p].songs.length)
   loadedId=null
+  updateNowPlaying()   // 🎵 TAMBAH INI
   togglePlay()
 }
 
@@ -951,6 +959,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
