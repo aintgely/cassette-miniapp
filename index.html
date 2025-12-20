@@ -323,19 +323,6 @@ input{
   letter-spacing:.06em;
   transition:opacity .25s ease;
 }
-  .now-playing.marquee{
-  overflow:hidden;
-  white-space:nowrap;
-}
-.now-playing.marquee span{
-  display:inline-block;
-  padding-left:100%;
-  animation:marquee 10s linear infinite;
-}
-@keyframes marquee{
-  from{transform:translateX(0)}
-  to{transform:translateX(-100%)}
-}
 
   /* ===== TAPE PROGRESS BAR ===== */
 .tape-progress{
@@ -580,23 +567,8 @@ input{
       <button onclick="addSong()">＋</button>
     </div>
 
-    <!-- 🔍 SEARCH BAR (WAJIB ADA, LOGIC SUDAH ADA) -->
-<div class="search-wrap" id="searchWrap">
-  <input id="searchInput" placeholder="Search song…">
-</div>
-
-<!-- 🎵 NOW PLAYING -->
-<div class="now-playing marquee" id="nowPlayingText">
-  <span>—</span>
-</div>
-
-<!-- 🎚️ PROGRESS -->
-<div class="tape-progress">
-  <div class="tape-bar" id="tapeBar"></div>
-</div>
-
-<!-- 🎛️ CONTROLS -->
-<div class="controls">
+<div class="controls">  
+  <!-- 🔍 SEARCH BUTTON -->
   <button class="icon-btn" onclick="toggleSearch()">
     <img src="search.png">
   </button>
@@ -616,6 +588,23 @@ input{
   <button class="icon-btn" onclick="shuffle()">
     <img src="shuffle.png">
   </button>
+
+</div>
+
+<div class="now-playing" id="nowPlayingText">—</div>
+
+    <!-- 🎚️ TAPE PROGRESS BAR -->
+<div class="tape-progress">
+  <div class="tape-bar" id="tapeBar"></div>
+</div>
+
+<!-- 🔍 SEARCH BAR -->
+<div class="search-wrap" id="searchWrap">
+  <input
+    id="searchInput"
+    placeholder="Search song…"
+    oninput="render()"
+  >
 </div>
 
   <div class="library" id="library">
@@ -690,14 +679,8 @@ const playerWrap=document.getElementById("playerWrap")
 const searchInput = document.getElementById("searchInput")
 const nowPlayingText = document.getElementById("nowPlayingText")
 
-// ===== TELEGRAM HAPTIC =====
-function haptic(type="light"){
-  tg?.HapticFeedback?.impactOccurred(type)
-}
-  
 function save(){
   localStorage.setItem("cassettePlaylists",JSON.stringify(data))
-   localStorage.setItem("lastSong", JSON.stringify(current))
   saveToCloud(data)
 }
 
@@ -712,7 +695,6 @@ function togglePanel(){
 
 function toggleSearch(){
   const w = document.getElementById("searchWrap")
-  if(!w) return
   w.classList.toggle("open")
 
   if(w.classList.contains("open")){
@@ -732,7 +714,7 @@ document.addEventListener("keydown", e => {
   const searchWrap = document.getElementById("searchWrap")
   const library = document.getElementById("library")
 
-  // 1️⃣ Tutup search
+  // 1️⃣ Tutup search dulu (prioritas)
   if(searchWrap?.classList.contains("open")){
     searchWrap.classList.remove("open")
     searchInput.value = ""
@@ -740,23 +722,10 @@ document.addEventListener("keydown", e => {
     return
   }
 
-  // 2️⃣ Tutup library
+  // 2️⃣ Kalau search tidak buka, tutup library
   if(library?.classList.contains("open")){
     library.classList.remove("open")
-  }
-
-  // 3️⃣ Tutup semua playlist
-  let changed = false
-  data.forEach(pl=>{
-    if(pl.open){
-      pl.open = false
-      changed = true
-    }
-  })
-
-  if(changed){
-    save()
-    render()
+    return
   }
 })
 
@@ -790,41 +759,33 @@ function loadVideo(id){
   startProgress()
 }
 function togglePlay(){
-  haptic("medium")
-
-  const song = data[current.p]?.songs[current.s]
-  if(!song) return
-
-  const id = extractId(song.url)
-  if(loadedId !== id){
-    loadVideo(id)
-    return
-  }
-
-  if(isPlaying){
-    ytPlayer.pauseVideo()
-    cassette.classList.remove("playing")
-    reelL.classList.remove("spin")
-    reelR.classList.remove("spin")
-    playBtn.innerHTML = '<img src="play.png">'
-    isPlaying = false
-    stopProgress()
-  }else{
-    ytPlayer.playVideo()
-    cassette.classList.add("playing")
-    reelL.classList.add("spin")
-    reelR.classList.add("spin")
-    playBtn.innerHTML = '<img src="pause.png">'
-    isPlaying = true
-    startProgress()
-  }
+  const song=data[current.p]?.songs[current.s]
+  if(!song)return
+  const id=extractId(song.url)
+  if(loadedId!==id){loadVideo(id);return}
+if(isPlaying){
+  ytPlayer.pauseVideo()
+  cassette.classList.remove("playing")
+  reelL.classList.remove("spin")
+  reelR.classList.remove("spin")
+  playBtn.innerHTML = '<img src="play.png">'
+  isPlaying=false
+  stopProgress()
+}else{
+  ytPlayer.playVideo()
+  cassette.classList.add("playing")
+  reelL.classList.add("spin")
+  reelR.classList.add("spin")
+  playBtn.innerHTML = '<img src="pause.png">'
+  isPlaying=true
+  startProgress()
 }
-  
+}
 function playSong(p,s){
   current={p,s}
   loadedId=null
 
-  updateNowPlaying()   // ✅ PAKAI SATU SUMBER
+  nowPlayingText.textContent = data[p].songs[s].title  // 🎵 INI
 
   togglePlay()
 
@@ -888,7 +849,6 @@ render()
 
 function toggleFolder(i){data[i].open=!data[i].open;save();render()}
 async function addSong(){
-  haptic("soft")
   const u=ytInput.value.trim()
   if(!u)return
   const title=await fetchTitle(u)
@@ -902,17 +862,7 @@ function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,
 function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
 function updateNowPlaying(){
   const song = data[current.p]?.songs[current.s]
-  if(!song){
-    nowPlayingText.textContent = "—"
-    return
-  }
-
-  nowPlayingText.innerHTML = `<span>${song.title}</span>`
-  nowPlayingText.classList.toggle("marquee", song.title.length > 28)
-
-  data.forEach((pl,i)=>pl.open = i === current.p)
-  save()
-  render()
+  nowPlayingText.textContent = song ? song.title : "—"
 }
 function next(){
   if(!data[current.p].songs.length)return
@@ -923,7 +873,6 @@ function next(){
   togglePlay()
 }
 function prev(){
-  haptic("light")
   if(!data[current.p].songs.length)return
   tapeBar.style.width="0%"
   current.s=Math.max(0,current.s-1)
@@ -932,7 +881,6 @@ function prev(){
   togglePlay()
 }
 function shuffle(){
-  haptic("light")
   if(!data[current.p].songs.length)return
   tapeBar.style.width="0%"
   current.s=Math.floor(Math.random()*data[current.p].songs.length)
@@ -980,14 +928,6 @@ function setStyle(i){
 applyStyle()
 
   /* ===== TAPE PROGRESS LOGIC ===== */
-  document
-  .querySelector(".tape-progress")
-  .addEventListener("click", e=>{
-    if(!ytPlayer) return
-    const r = e.currentTarget.getBoundingClientRect()
-    const p = (e.clientX - r.left) / r.width
-    ytPlayer.seekTo(ytPlayer.getDuration() * p, true)
-  })
 function startProgress(){
   stopProgress()
   progressTimer = setInterval(()=>{
@@ -1030,11 +970,6 @@ function enableDrag(){
     })
   })
 }
-  const last = JSON.parse(localStorage.getItem("lastSong") || "null")
-if(last){
-  current = last
-  updateNowPlaying()
-}
 render()
 loadPlaylist()
   
@@ -1042,30 +977,3 @@ loadPlaylist()
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
