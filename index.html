@@ -714,7 +714,7 @@ document.addEventListener("keydown", e => {
   const searchWrap = document.getElementById("searchWrap")
   const library = document.getElementById("library")
 
-  // 1️⃣ Tutup search dulu (prioritas)
+  // 1️⃣ Tutup search dulu
   if(searchWrap?.classList.contains("open")){
     searchWrap.classList.remove("open")
     searchInput.value = ""
@@ -722,10 +722,23 @@ document.addEventListener("keydown", e => {
     return
   }
 
-  // 2️⃣ Kalau search tidak buka, tutup library
+  // 2️⃣ Tutup library
   if(library?.classList.contains("open")){
     library.classList.remove("open")
-    return
+  }
+
+  // 3️⃣ Tutup SEMUA playlist folder
+  let changed = false
+  data.forEach(pl => {
+    if(pl.open){
+      pl.open = false
+      changed = true
+    }
+  })
+
+  if(changed){
+    save()
+    render()
   }
 })
 
@@ -977,6 +990,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
