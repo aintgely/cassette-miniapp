@@ -163,6 +163,16 @@ box-shadow:
   pointer-events:none;
 }
 
+  /* 🔁 PLAY BUTTON PULSE */
+.icon-btn.playing{
+  animation:btnPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes btnPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+}
+
 /* ===== CASSETTE ===== */
 .cassette{
   position:relative;
@@ -187,6 +197,18 @@ box-shadow:
 }
 .player.open.settled .cassette{
   transform:rotate(0) rotateX(0) translateY(0) scale(1);
+}
+
+  /* ⏱️ TAPE COUNTER */
+.tape-counter{
+  position:absolute;
+  bottom:10px;
+  left:14px;
+  font-size:10px;
+  font-family:monospace;
+  letter-spacing:.08em;
+  opacity:.5;
+  pointer-events:none;
 }
 
   /* 📼 CASSETTE STATUS BADGE */
@@ -275,12 +297,22 @@ box-shadow:
 
 /* WINDOW */
 .window{
+  position:relative;
   background:
     var(--cassette-bg)
     center/cover no-repeat;
   border-radius:10px;
   padding:14px 18px;
   box-shadow:inset 0 0 18px rgba(0,0,0,.8);
+}
+
+  .window::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:10px;
+  box-shadow:inset 0 0 24px rgba(0,0,0,.6);
+  pointer-events:none;
 }
 .reels{display:flex;justify-content:space-between}
 .reel{
@@ -468,9 +500,15 @@ input{
   border-radius:18px;
   padding:10px;margin-bottom:12px;
 }
-  .song.active{
+.song.active{
   font-weight:500;
-  opacity:.9;
+  opacity:.95;
+  background:linear-gradient(
+    90deg,
+    rgba(255,180,90,.18),
+    transparent
+  );
+  border-radius:10px;
 }
 
 .song.active::before{
@@ -597,6 +635,7 @@ input{
 
   <!-- 🔹 CASSETTE STATUS BADGE -->
 <div class="cassette-status" id="cassetteStatus">●</div>
+<div class="tape-counter" id="tapeCounter">00:00</div>
   
     <div class="cassette-label">
       <span>SIDE A</span>
@@ -720,8 +759,9 @@ const tapeBar = document.getElementById("tapeBar")
 let progressTimer = null
 const cassette=document.querySelector(".cassette")
 const cassetteStatus = document.getElementById("cassetteStatus")
+const tapeCounter = document.getElementById("tapeCounter")
 const playerWrap=document.getElementById("playerWrap")
-const searchInput = document.getElementById("searchInput")
+const searchInput = null
 const nowPlayingText = document.getElementById("nowPlayingText")
 
 function save(){
@@ -798,6 +838,7 @@ function loadVideo(id){
   loadedId=id
   isPlaying=true
   cassette.classList.add("playing")
+  cassetteStatus.style.opacity = 1
   cassetteStatus.textContent = "PLAY"
   reelL.classList.add("spin")
   reelR.classList.add("spin")
@@ -805,30 +846,41 @@ function loadVideo(id){
   startProgress()
 }
 function togglePlay(){
-  const song=data[current.p]?.songs[current.s]
-  if(!song)return
-  const id=extractId(song.url)
-  if(loadedId!==id){loadVideo(id);return}
-if(isPlaying){
-  ytPlayer.pauseVideo()
-  cassette.classList.remove("playing")
-  cassetteStatus.textContent = "STOP"
-  reelL.classList.remove("spin")
-  reelR.classList.remove("spin")
-  playBtn.innerHTML = '<img src="play.png">'
-  isPlaying=false
-  stopProgress()
-}else{
-  ytPlayer.playVideo()
-  cassette.classList.add("playing")
-  cassetteStatus.textContent = "PLAY"
-  reelL.classList.add("spin")
-  reelR.classList.add("spin")
-  playBtn.innerHTML = '<img src="pause.png">'
-  isPlaying=true
-  startProgress()
+  const song = data[current.p]?.songs[current.s]
+  if(!song) return
+
+  const id = extractId(song.url)
+
+  if(loadedId !== id){
+    loadVideo(id)
+    return
+  }
+
+  if(isPlaying){
+    ytPlayer.pauseVideo()
+    cassette.classList.remove("playing")
+    cassetteStatus.textContent = "STOP"
+    cassetteStatus.style.opacity = .4
+    reelL.classList.remove("spin")
+    reelR.classList.remove("spin")
+    playBtn.innerHTML = '<img src="play.png">'
+    playBtn.classList.remove("playing")
+    isPlaying = false
+    stopProgress()
+  }else{
+    ytPlayer.playVideo()
+    cassette.classList.add("playing")
+    cassetteStatus.style.opacity = 1
+    cassetteStatus.textContent = "PLAY"
+    reelL.classList.add("spin")
+    reelR.classList.add("spin")
+    playBtn.innerHTML = '<img src="pause.png">'
+    playBtn.classList.add("playing")
+    isPlaying = true
+    startProgress()
+  }
 }
-}
+
 function playSong(p,s){
   current={p,s}
   loadedId=null
@@ -987,24 +1039,30 @@ applyStyle()
   /* ===== TAPE PROGRESS LOGIC ===== */
 function startProgress(){
   stopProgress()
-progressTimer = setInterval(()=>{
-  if(!ytPlayer || !isPlaying) return
+  progressTimer = setInterval(()=>{
+    if(!ytPlayer || !isPlaying) return
 
-const t = Date.now()
-const stretchL = 0.85 + Math.sin(t/480) * 0.05
-const stretchR = 0.85 + Math.sin(t/520) * 0.05
+    const t = Date.now()
+    const stretchL = 0.85 + Math.sin(t/480) * 0.05
+    const stretchR = 0.85 + Math.sin(t/520) * 0.05
 
-reelL.style.transform =
-  `scaleY(${stretchL}) rotate(${t/20}deg)`
-reelR.style.transform =
-  `scaleY(${stretchR}) rotate(${t/22}deg)`
+    reelL.style.transform =
+      `scaleY(${stretchL}) rotate(${t/20}deg)`
+    reelR.style.transform =
+      `scaleY(${stretchR}) rotate(${t/22}deg)`
 
-  const dur = ytPlayer.getDuration()
-  const cur = ytPlayer.getCurrentTime()
-  if(!dur) return
+    const dur = ytPlayer.getDuration()
+    const cur = ytPlayer.getCurrentTime()
+    if(!dur) return
 
-  tapeBar.style.width = (cur / dur * 100) + "%"
-}, 500)
+    // ⏱️ TAPE COUNTER — TARUH DI SINI
+    const m = Math.floor(cur / 60)
+    const s = Math.floor(cur % 60)
+    tapeCounter.textContent =
+      `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
+
+    tapeBar.style.width = (cur / dur * 100) + "%"
+  }, 500)
 }
 
 function stopProgress(){
@@ -1013,6 +1071,8 @@ function stopProgress(){
 
   reelL.style.transform = ""
   reelR.style.transform = ""
+
+  tapeCounter.textContent = "00:00"
 }
 
 /* ===== DRAG LOGIC ===== */
@@ -1048,6 +1108,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
