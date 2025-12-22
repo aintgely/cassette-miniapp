@@ -243,6 +243,41 @@ box-shadow:
     0 0 14px rgba(255,180,90,.7);
 }
 
+  /* ✨ FINAL VISIBILITY BOOST */
+.tape-counter{
+  text-shadow:
+    0 0 3px rgba(0,0,0,.9),
+    0 0 6px rgba(0,0,0,.6);
+}
+
+.cassette-status{
+  text-shadow:
+    0 0 4px rgba(0,0,0,.9),
+    0 0 8px rgba(0,0,0,.7);
+}
+
+/* 🔴 LED BLINK (SUBTLE) */
+@keyframes ledBlink{
+  0%,100%{
+    opacity:1;
+    filter:brightness(1);
+  }
+  50%{
+    opacity:.55;
+    filter:brightness(.85);
+  }
+}
+
+/* ▶️ BLINK SAAT PLAY */
+.cassette.playing .cassette-status{
+  animation: ledBlink 1.8s ease-in-out infinite;
+}
+
+/* ⏸ STOP = NO BLINK */
+.cassette:not(.playing) .cassette-status{
+  animation: none;
+}
+
   /* 🧊 GLASS BACKGROUND FOR INDICATORS */
 .tape-counter,
 .cassette-status{
@@ -250,6 +285,14 @@ box-shadow:
   padding:2px 6px;
   border-radius:6px;
   backdrop-filter:blur(2px);
+}
+
+  /* ❌ REMOVE BACKGROUND – FLOATING TEXT */
+.tape-counter,
+.cassette-status{
+  background:none !important;
+  backdrop-filter:none !important;
+  padding:0 !important;
 }
 
   /* 📼 MINI TAPE INSERT */
@@ -1133,6 +1176,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
