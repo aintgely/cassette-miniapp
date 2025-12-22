@@ -720,6 +720,15 @@ input{
   </div>
 
   <div class="panel">
+
+    <!-- 🔍 SEARCH BAR -->
+<div class="search-wrap" id="searchWrap">
+  <input
+    id="searchInput"
+    placeholder="Search in all tapes…"
+  >
+</div>
+    
     <div class="input">
       <input id="ytInput" placeholder="Paste a memory…">
       <button onclick="addSong()">＋</button>
@@ -833,7 +842,10 @@ const cassette=document.querySelector(".cassette")
 const cassetteStatus = document.getElementById("cassetteStatus")
 const tapeCounter = document.getElementById("tapeCounter")
 const playerWrap=document.getElementById("playerWrap")
-const searchInput = null
+const searchInput = document.getElementById("searchInput")
+searchInput.addEventListener("input", () => {
+  render()
+})
 const nowPlayingText = document.getElementById("nowPlayingText")
 
 function save(){
@@ -1181,6 +1193,7 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
 
