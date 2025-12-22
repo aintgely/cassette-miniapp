@@ -681,11 +681,25 @@ let data=[
 ]
 
 async function loadPlaylist(){
-  const cloudData = await loadFromCloud()
-  if(cloudData){
+  try{
+    const cloudData = await loadFromCloud()
+
+    if(
+      !Array.isArray(cloudData) ||
+      !cloudData.length ||
+      !cloudData[0]?.songs
+    ){
+      throw "Invalid cloud data"
+    }
+
     data = cloudData
-    render()
+  }catch(e){
+    console.warn("Cloud data reset:", e)
+    data = [{ name:"My Playlist", songs:[], open:true }]
+    save()
   }
+
+  render()
 }
   
 let current={p:0,s:0}
@@ -997,32 +1011,57 @@ function enableDrag(){
     f.draggable=true
     f.ondragstart=()=>dragPlaylist=pi
     f.ondragover=e=>e.preventDefault()
-    f.ondrop=()=>{
-      if(dragPlaylist===null||dragPlaylist===pi)return
-      const m=data.splice(dragPlaylist,1)[0]
-      data.splice(pi,0,m)
-      dragPlaylist=null;save();render()
-    }
+f.ondrop = ()=>{
+  if(
+    dragPlaylist === null ||
+    dragPlaylist === pi ||
+    !data[dragPlaylist]
+  ) return
+
+  const m = data.splice(dragPlaylist,1)[0]
+  if(!m) return
+
+  data.splice(pi,0,m)
+  dragPlaylist = null
+  save()
+  render()
+}
     f.querySelectorAll(".song").forEach((s,si)=>{
       s.draggable=true
       s.ondragstart=()=>dragSong={p:pi,s:si}
       s.ondragover=e=>e.preventDefault()
-      s.ondrop=()=>{
-        if(!dragSong)return
-        const m=data[dragSong.p].songs.splice(dragSong.s,1)[0]
-        data[pi].songs.splice(si,0,m)
-        dragSong=null;save();render()
-      }
+s.ondrop = ()=>{
+  if(!dragSong) return
+
+  // 🔒 GUARD ANTI DATA RUSAK (INI YANG KAMU TANYA)
+  if(
+    !data[dragSong.p] ||
+    !data[dragSong.p].songs ||
+    !data[dragSong.p].songs[dragSong.s]
+  ) return
+
+  const m = data[dragSong.p].songs.splice(dragSong.s,1)[0]
+  if(!m) return
+
+  data[pi].songs.splice(si,0,m)
+  dragSong = null
+  save()
+  render()
+}
     })
   })
 }
 render()
+tg.CloudStorage.removeItem("cassette_playlists")
+localStorage.removeItem("cassettePlaylists")
+
 loadPlaylist()
   
 </script>
 
 </body>
 </html>
+
 
 
 
