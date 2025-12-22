@@ -189,6 +189,23 @@ box-shadow:
   transform:rotate(0) rotateX(0) translateY(0) scale(1);
 }
 
+  /* 📼 CASSETTE STATUS BADGE */
+.cassette-status{
+  position:absolute;
+  bottom:10px;
+  right:14px;
+  font-size:10px;
+  letter-spacing:.14em;
+  opacity:.45;
+  font-weight:500;
+  pointer-events:none;
+}
+
+.cassette.playing .cassette-status{
+  opacity:.9;
+  color:#ffb566;
+}
+
   /* 📼 MINI TAPE INSERT */
 .cassette.inserting{
   animation:tapeInsert .8s cubic-bezier(.22,1,.36,1);
@@ -570,12 +587,15 @@ input{
 
 <div class="player" id="playerWrap">
 
-  <div class="cassette" onclick="togglePanel()">
-    <span class="shine"></span>
-    <span class="screw tl"></span>
-    <span class="screw tr"></span>
-    <span class="screw bl"></span>
-    <span class="screw br"></span>
+<div class="cassette" onclick="togglePanel()">
+  <span class="shine"></span>
+  <span class="screw tl"></span>
+  <span class="screw tr"></span>
+  <span class="screw bl"></span>
+  <span class="screw br"></span>
+
+  <!-- 🔹 CASSETTE STATUS BADGE -->
+  <div class="cassette-status" id="cassetteStatus">STOP</div>
 
     <div class="cassette-label">
       <span>SIDE A</span>
@@ -698,6 +718,7 @@ const playlistsEl=document.getElementById("playlists")
 const tapeBar = document.getElementById("tapeBar")
 let progressTimer = null
 const cassette=document.querySelector(".cassette")
+const cassetteStatus = document.getElementById("cassetteStatus")
 const playerWrap=document.getElementById("playerWrap")
 const searchInput = document.getElementById("searchInput")
 const nowPlayingText = document.getElementById("nowPlayingText")
@@ -776,6 +797,7 @@ function loadVideo(id){
   loadedId=id
   isPlaying=true
   cassette.classList.add("playing")
+  cassetteStatus.textContent = "PLAY"
   reelL.classList.add("spin")
   reelR.classList.add("spin")
   playBtn.innerHTML = '<img src="pause.png">'
@@ -789,6 +811,7 @@ function togglePlay(){
 if(isPlaying){
   ytPlayer.pauseVideo()
   cassette.classList.remove("playing")
+  cassetteStatus.textContent = "STOP"
   reelL.classList.remove("spin")
   reelR.classList.remove("spin")
   playBtn.innerHTML = '<img src="play.png">'
@@ -797,6 +820,7 @@ if(isPlaying){
 }else{
   ytPlayer.playVideo()
   cassette.classList.add("playing")
+  cassetteStatus.textContent = "PLAY"
   reelL.classList.add("spin")
   reelR.classList.add("spin")
   playBtn.innerHTML = '<img src="pause.png">'
@@ -1023,4 +1047,5 @@ loadPlaylist()
 
 </body>
 </html>
+
 
