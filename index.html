@@ -192,18 +192,19 @@ box-shadow:
   /* 📼 CASSETTE STATUS BADGE */
 .cassette-status{
   position:absolute;
-  bottom:10px;
-  right:14px;
-  font-size:10px;
-  letter-spacing:.14em;
-  opacity:.45;
-  font-weight:500;
-  pointer-events:none;
+  bottom:12px;
+  right:16px;
+
+  font-size:14px;
+  color:#666;
+  text-shadow:0 0 2px #000;
 }
 
 .cassette.playing .cassette-status{
-  opacity:.9;
   color:#ffb566;
+  text-shadow:
+    0 0 6px rgba(255,180,90,.9),
+    0 0 12px rgba(255,180,90,.6);
 }
 
   /* 📼 MINI TAPE INSERT */
@@ -595,8 +596,8 @@ input{
   <span class="screw br"></span>
 
   <!-- 🔹 CASSETTE STATUS BADGE -->
-  <div class="cassette-status" id="cassetteStatus">STOP</div>
-
+<div class="cassette-status" id="cassetteStatus">●</div>
+  
     <div class="cassette-label">
       <span>SIDE A</span>
       <span>CD it I</span>
@@ -1047,5 +1048,6 @@ loadPlaylist()
 
 </body>
 </html>
+
 
 
