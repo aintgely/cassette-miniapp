@@ -418,9 +418,12 @@ box-shadow:
   transition:transform .6s ease;
 }
 
-.cassette.playing .reel::after{
-  transform:scaleY(.85);
+.cassette.playing .reel{
+  box-shadow:
+    inset 0 0 8px rgba(0,0,0,.45),
+    0 0 6px rgba(255,180,90,.25);
 }
+
 /* ===== PANEL ===== */
 .panel{
   max-height:0;
@@ -1131,10 +1134,8 @@ function startProgress(){
     const stretchL = 0.85 + Math.sin(t/480) * 0.05
     const stretchR = 0.85 + Math.sin(t/520) * 0.05
 
-    reelL.style.transform =
-      `scaleY(${stretchL}) rotate(${t/20}deg)`
-    reelR.style.transform =
-      `scaleY(${stretchR}) rotate(${t/22}deg)`
+reelL.style.transform = `rotate(${t/20}deg)`
+reelR.style.transform = `rotate(${t/22}deg)`
 
     const dur = ytPlayer.getDuration()
     const cur = ytPlayer.getCurrentTime()
@@ -1193,3 +1194,4 @@ loadPlaylist()
 
 </body>
 </html>
+
