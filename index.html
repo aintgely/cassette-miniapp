@@ -424,6 +424,12 @@ box-shadow:
     0 0 6px rgba(255,180,90,.25);
 }
 
+  /* 🔒 OVERRIDE ANIMASI WHEEL (WAJIB) */
+.wheel-left,
+.wheel-right{
+  animation: none !important;
+}
+
 /* ===== PANEL ===== */
 .panel{
   max-height:0;
@@ -698,29 +704,67 @@ input{
 <div class="player" id="playerWrap">
 
 <div class="cassette" onclick="togglePanel()">
-  <span class="shine"></span>
-  <span class="screw tl"></span>
-  <span class="screw tr"></span>
-  <span class="screw bl"></span>
-  <span class="screw br"></span>
 
-  <!-- 🔹 CASSETTE STATUS BADGE -->
-<div class="cassette-status" id="cassetteStatus">●</div>
-<div class="tape-counter" id="tapeCounter">00:00</div>
-  
-    <div class="cassette-label">
-      <span>SIDE A</span>
-      <span>CD it I</span>
-      <span>29</span>
+  <div class="casette">
+
+    <!-- screws -->
+    <div class="screw screw--tl"><span></span></div>
+    <div class="screw screw--tr"><span></span></div>
+    <div class="screw screw--bl"><span></span></div>
+    <div class="screw screw--br"><span></span></div>
+
+    <!-- label -->
+    <div class="label">
+      <div class="label--writing">Éthersound</div>
     </div>
 
-    <div class="window">
-      <div class="reels">
-        <div class="reel" id="reelL"><span class="hub"></span></div>
-        <div class="reel" id="reelR"><span class="hub"></span></div>
+<!-- 🔧 WAJIB ADA (JS BUTUH INI) -->
+<div id="cassetteStatus" style="display:none"></div>
+<div id="tapeCounter" style="display:none"></div>
+
+    <!-- reels -->
+    <div class="wheels-wrapper">
+
+      <div class="wheel-shadow wheel-shadow-left"></div>
+      <div class="wheel-shadow wheel-shadow-right"></div>
+
+      <!-- ⚠️ ID WAJIB -->
+      <div class="wheel wheel-left" id="reelL">
+        <div class="teeth-wrapper">
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+        </div>
+      </div>
+
+      <div class="window">
+        <div class="tape-left"></div>
+        <div class="tape-right"></div>
+      </div>
+
+      <!-- ⚠️ ID WAJIB -->
+      <div class="wheel wheel-right" id="reelR">
+        <div class="teeth-wrapper">
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+          <span class="tooth"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom">
+      <div class="holes">
+        <div class="hole-square left"></div>
+        <div class="hole"></div>
+        <div class="hole-square right"></div>
       </div>
     </div>
+
   </div>
+</div>
 
   <div class="panel">
 
@@ -1190,10 +1234,12 @@ function enableDrag(){
 render()
 loadPlaylist()
   
+  
 </script>
 
 </body>
 </html>
+
 
 
 
