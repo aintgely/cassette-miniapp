@@ -810,10 +810,23 @@ input{
 <script>
 let ytPlayer=null
 function onYouTubeIframeAPIReady(){
-  ytPlayer=new YT.Player("player",{
-    height:"0",width:"0",
-    playerVars:{autoplay:1,controls:0,rel:0,playsinline:1},
-    events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)next()}}
+  ytPlayer = new YT.Player("player",{
+    height:"0",
+    width:"0",
+    playerVars:{
+      autoplay:1,
+      controls:0,
+      rel:0,
+      playsinline:1
+    },
+    events:{
+      onStateChange:e=>{
+        if(e.data === YT.PlayerState.ENDED){
+          localStorage.removeItem("cassetteResume")
+          next()
+        }
+      }
+    }
   })
 }
 
@@ -831,6 +844,7 @@ async function loadPlaylist(){
   
 let current={p:0,s:0}
 let loadedId=null,isPlaying=false
+let resumeTime = 0
 
 const reelL=document.getElementById("reelL")
 const reelR=document.getElementById("reelR")
@@ -849,7 +863,15 @@ searchInput.addEventListener("input", () => {
 const nowPlayingText = document.getElementById("nowPlayingText")
 
 function save(){
-  localStorage.setItem("cassettePlaylists",JSON.stringify(data))
+  localStorage.setItem("cassettePlaylists", JSON.stringify(data))
+
+  const resumeState = {
+    p: current.p,
+    s: current.s,
+    t: ytPlayer?.getCurrentTime?.() || resumeTime || 0
+  }
+
+  localStorage.setItem("cassetteResume", JSON.stringify(resumeState))
   saveToCloud(data)
 }
 
@@ -918,17 +940,26 @@ async function fetchTitle(url){
 }
 
 function loadVideo(id){
-  ytPlayer.loadVideoById(id)
-  loadedId=id
-  isPlaying=true
+ytPlayer.loadVideoById({
+  videoId: id,
+  startSeconds: resumeTime || 0
+})
+
+  resumeTime = 0
+  loadedId = id
+  isPlaying = true
+
   cassette.classList.add("playing")
   cassetteStatus.style.opacity = 1
   cassetteStatus.textContent = "PLAY"
+
   reelL.classList.add("spin")
   reelR.classList.add("spin")
+
   playBtn.innerHTML = '<img src="pause.png">'
   startProgress()
 }
+
 function togglePlay(){
   const song = data[current.p]?.songs[current.s]
   if(!song) return
@@ -1057,6 +1088,32 @@ function updateNowPlaying(){
   const song = data[current.p]?.songs[current.s]
   nowPlayingText.textContent = song ? song.title : "—"
 }
+
+/* ===== RESUME LAST PLAYED ===== */
+function loadResume(){
+  const raw = localStorage.getItem("cassetteResume")
+  if(!raw) return
+
+  try{
+    const r = JSON.parse(raw)
+
+    if(
+      typeof r.p !== "number" ||
+      typeof r.s !== "number"
+    ) return
+
+    current = { p: r.p, s: r.s }
+    resumeTime = r.t || 0
+
+    updateNowPlaying()
+
+    // 🔑 PENTING: biar PLAY pertama langsung resume
+    loadedId = null
+    isPlaying = false
+
+  }catch(e){}
+}
+
 function next(){
   if(!data[current.p].songs.length)return
   tapeBar.style.width="0%"
@@ -1139,6 +1196,7 @@ function startProgress(){
     const dur = ytPlayer.getDuration()
     const cur = ytPlayer.getCurrentTime()
     if(!dur) return
+    resumeTime = cur
 
     // ⏱️ TAPE COUNTER — TARUH DI SINI
     const m = Math.floor(cur / 60)
@@ -1187,12 +1245,13 @@ function enableDrag(){
   })
 }
 render()
-loadPlaylist()
+loadPlaylist().then(loadResume)
   
 </script>
 
 </body>
 </html>
+
 
 
 
