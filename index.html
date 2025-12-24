@@ -2,1198 +2,542 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Retro Cassette Player</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script>
-/* === STEP 1: Telegram User ID === */
-const tg = window.Telegram.WebApp
-const uid = tg?.initDataUnsafe?.user?.id || "guest"
-
-  /* === TELEGRAM CLOUD STORAGE === */
-function loadFromCloud(){
-  return new Promise(resolve=>{
-    if(!tg.CloudStorage) return resolve(null)
-    tg.CloudStorage.getItem("cassette_playlists",(err,value)=>{
-      if(err || !value){
-        resolve(null)
-      }else{
-        resolve(JSON.parse(value))
-      }
-    })
-  })
-}
-
-function saveToCloud(data){
-  if(!tg.CloudStorage) return
-  tg.CloudStorage.setItem(
-    "cassette_playlists",
-    JSON.stringify(data)
-  )
-}
-  
-/* === DEBUG (WAJIB SEMENTARA) === */
-console.log("Telegram:", tg)
-console.log("initData:", tg.initDataUnsafe)
-console.log("uid:", uid)
-</script>
-
-<script src="https://www.youtube.com/iframe_api"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turntable Animation</title>
 
 <style>
-/* ===== BASE ===== */
-:root{
-  --ink:#1b1b1b;
-  --accent:#6a4a3a;
-}
-*{box-sizing:border-box}
 body{
-  margin:0;height:100vh;
-  display:flex;justify-content:center;align-items:center;
-  background:#e5e5e5;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:var(--ink);
+  background: #333642;
 }
 
-/* ===== PLAYER (NO BACKGROUND INIT) ===== */
-.player{
-  position:relative;
-  width:360px;
-  padding:20px;
-  transition:.9s cubic-bezier(.22,1,.36,1);
-}
-
-/* ===== SEARCH BAR ===== */
-.search-wrap{
-  max-height:0;
-  opacity:0;
-  overflow:hidden;
-  transform:translateY(-6px);
-  transition:
-    max-height .4s ease,
-    opacity .3s ease,
-    transform .3s ease;
-}
-
-.search-wrap.open{
-  max-height:60px;
-  opacity:1;
-  transform:translateY(0);
-}
-
-.search-wrap input{
-  width:100%;
-  padding:10px 14px;
-  border-radius:16px;
-  border:1px solid rgba(0,0,0,.15);
-}
-  
-/* 🎬 BACKGROUND PLASTIC LAYER */
-.player::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:34px;
-
-  background:
-    url("plastic-texture.png") repeat,
-    linear-gradient(180deg,#f7f7f7,#dcdcdc);
-
-  background-size: 256px 256px, cover;
-background-blend-mode: soft-light;
-
-box-shadow:
-  inset 0 1px 0 rgba(255,255,255,.4),
-  inset 0 -1px 2px rgba(0,0,0,.08),
-  0 40px 120px rgba(0,0,0,.25);
-
-  opacity:0;
-  transform:scale(.96);
-  transition:
-    opacity .7s cubic-bezier(.22,1,.36,1),
-    transform .7s cubic-bezier(.22,1,.36,1);
-
-  z-index:-1;
-}
-
-/* 🧂 PLASTIC GRAIN */
-.player::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:34px;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.02),
-      rgba(255,255,255,.02) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  opacity:.35;
-  pointer-events:none;
-  z-index:-1;
-}
-
-/* SHOW BACKGROUND WHEN OPEN */
-.player.open::before{
-  opacity:1;
-  transform:scale(1);
-}
-
-  /* ===== ICON BUTTON (PNG ONLY, NO BACKGROUND) ===== */
-.icon-btn{
-  background:none !important;
-  border:none !important;
-  padding:0;
-  width:36px;
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-
-.icon-btn img{
-  width:22px;
-  height:22px;
-  object-fit:contain;
-  pointer-events:none;
-}
-
-  /* 🔁 PLAY BUTTON PULSE */
-.icon-btn.playing{
-  animation:btnPulse 1.6s ease-in-out infinite;
-}
-
-@keyframes btnPulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.06)}
-}
-
-/* ===== CASSETTE ===== */
-.cassette{
-  position:relative;
-  background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(170,170,170,.35));
-  backdrop-filter:blur(6px);
-  border-radius:18px;
-  padding:18px;
-  margin-bottom:16px;
-  border:1px solid rgba(255,255,255,.7);
+.turntable{
+  outline: 1px solid rgba(255,255,255,0.15);
+  outline-offset: -6px;
+  position: relative;
+  margin: auto;
+  display: block;
+  margin-top: 8%;
+  margin-bottom: 8%;
+  width: 310px;
+  height:280px;
+  background: #8b5a2b;
+  background-blend-mode: overlay;
+  border-radius: 5%;
+  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid rgba(0,0,0,0.3);
   box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,.08),
-    0 20px 60px rgba(0,0,0,.35);
-  cursor:pointer;
-  overflow:hidden;
-
-  transform:rotate(-90deg) scale(.95);
-  transform-origin:center;
-  transition:transform 1.2s cubic-bezier(.22,1,.36,1);
-}
-.player.open .cassette{
-  transform:rotate(-12deg) rotateX(18deg) translateY(18px) scale(1);
-}
-.player.open.settled .cassette{
-  transform:rotate(0) rotateX(0) translateY(0) scale(1);
+  inset 0 2px 2px rgba(255,255,255,0.5),   /* highlight bibir atas */
+  inset 0 -14px 22px rgba(0,0,0,0.45),     /* kedalaman dalam */
+  0 22px 40px rgba(0,0,0,0.5);             /* bayangan jatuh */
 }
 
-  /* ⏱️ TAPE COUNTER */
-.tape-counter{
-  position:absolute;
-  bottom:14px;
-  left:22px;
-
-  font-size:10px;
-  font-family:monospace;
-  letter-spacing:.08em;
-
-  color:#fff;                /* 🔴 */
-  text-shadow:0 0 4px #000;  /* 🔴 */
-  opacity:.9;                /* 🔴 */
-
-  z-index:5;                 /* 🔴 PALING PENTING */
-  pointer-events:none;
-}
-
-  /* 📼 CASSETTE STATUS BADGE */
-.cassette-status{
-  position:absolute;
-  bottom:14px;
-  right:22px;
-
-  font-size:14px;
-  color:#fff;                /* 🔴 */
-  text-shadow:
-    0 0 4px #000,
-    0 0 8px rgba(0,0,0,.8);
-
-  opacity:.6;
-  z-index:5;                 /* 🔴 PALING PENTING */
-  pointer-events:none;
-}
-
-.cassette.playing .cassette-status{
-  opacity:1;
-  color:#ffb566;
-
-  text-shadow:
-    0 0 6px rgba(255,180,90,.9),
-    0 0 14px rgba(255,180,90,.7);
-}
-
-  /* ✨ FINAL VISIBILITY BOOST */
-.tape-counter{
-  text-shadow:
-    0 0 3px rgba(0,0,0,.9),
-    0 0 6px rgba(0,0,0,.6);
-}
-
-.cassette-status{
-  text-shadow:
-    0 0 4px rgba(0,0,0,.9),
-    0 0 8px rgba(0,0,0,.7);
-}
-
-/* 🔴 LED BLINK (SUBTLE) */
-@keyframes ledBlink{
-  0%,100%{
-    opacity:1;
-    filter:brightness(1);
-  }
-  50%{
-    opacity:.55;
-    filter:brightness(.85);
-  }
-}
-
-/* ▶️ BLINK SAAT PLAY */
-.cassette.playing .cassette-status{
-  animation: ledBlink 1.8s ease-in-out infinite;
-}
-
-/* ⏸ STOP = NO BLINK */
-.cassette:not(.playing) .cassette-status{
-  animation: none;
-}
-
-  /* 🧊 GLASS BACKGROUND FOR INDICATORS */
-.tape-counter,
-.cassette-status{
-  background:rgba(0,0,0,.25);
-  padding:2px 6px;
-  border-radius:6px;
-  backdrop-filter:blur(2px);
-}
-
-  /* ❌ REMOVE BACKGROUND – FLOATING TEXT */
-.tape-counter,
-.cassette-status{
-  background:none !important;
-  backdrop-filter:none !important;
-  padding:0 !important;
-}
-
-  /* 📼 MINI TAPE INSERT */
-.cassette.inserting{
-  animation:tapeInsert .8s cubic-bezier(.22,1,.36,1);
-}
-
-@keyframes tapeInsert{
-  0%{ transform:scale(1); }
-  30%{ transform:scale(1.02); }
-  60%{ transform:scale(.98); }
-  100%{ transform:scale(1); }
-}
-
-/* SHINE */
-.shine{
-  position:absolute;
-  inset:-40%;
-  background:linear-gradient(
-    120deg,
-    transparent 30%,
-    rgba(255,255,255,.55) 45%,
-    rgba(255,255,255,.25) 50%,
-    transparent 60%
-  );
-  transform:translateX(-60%);
-  animation:shineIdle 8s ease-in-out infinite;
-  pointer-events:none;
-  mix-blend-mode:screen;
-}
-@keyframes shineIdle{
-  0%{transform:translateX(-60%)}
-  50%{transform:translateX(60%)}
-  100%{transform:translateX(-60%)}
-}
-.cassette.playing .shine{
-  animation:shinePlay 3s linear infinite;
-}
-@keyframes shinePlay{
-  from{transform:translateX(-80%)}
-  to{transform:translateX(80%)}
-}
-
-/* SCREWS */
-.screw{
-  position:absolute;
-  width:9px;height:9px;
-  border-radius:50%;
-  background:radial-gradient(circle at 30% 30%,#555,#111);
-}
-.screw.tl{top:10px;left:10px}
-.screw.tr{top:10px;right:10px}
-.screw.bl{bottom:10px;left:10px}
-.screw.br{bottom:10px;right:10px}
-
-/* LABEL */
-.cassette-label{
-  display:flex;justify-content:space-between;
-  font-size:11px;letter-spacing:.08em;
-  margin-bottom:8px;
-}
-.cassette-label span{
-  background:rgba(0,0,0,.55);
-  color:#eee;
-  padding:2px 6px;
-  border-radius:4px;
-}
-
-/* WINDOW */
-.window{
-  position:relative;
-  background:
-    var(--cassette-bg)
-    center/cover no-repeat;
-  border-radius:10px;
-  padding:14px 18px;
-  box-shadow:inset 0 0 18px rgba(0,0,0,.8);
-}
-
-.window::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:10px;
-  box-shadow:inset 0 0 24px rgba(0,0,0,.6);
-  pointer-events:none;
-
-  z-index:1;   /* 🔽 TURUNKAN */
-}
-.reels{display:flex;justify-content:space-between}
-.reel{
-  position:relative;
-  width:58px;height:58px;
-  border-radius:50%;
-  border:3px solid #cfcfcf;
-  background:
-    radial-gradient(circle at center,#e5e5e5 0 6px,transparent 7px),
-    radial-gradient(circle at center,rgba(0,0,0,.6),transparent 62%);
-}
-.spin{animation:spin 1.25s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.hub{
-  position:absolute;
-  top:50%;left:50%;
-  width:14px;height:14px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:radial-gradient(circle at 30% 30%,#f2f2f2,#9e9e9e 70%,#6f6f6f);
-}
-  
-/* 🎞️ TAPE STRETCH ILLUSION */
-.reel::after{
+  .turntable::before{
   content:"";
   position:absolute;
   inset:6px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at center,
-      rgba(0,0,0,.15),
-      transparent 70%);
-  opacity:.4;
-  transform:scaleY(1);
-  transition:transform .6s ease;
-}
-
-.cassette.playing .reel{
+  border-radius:inherit;
+  pointer-events:none;
   box-shadow:
-    inset 0 0 8px rgba(0,0,0,.45),
-    0 0 6px rgba(255,180,90,.25);
+    inset 0 10px 18px rgba(0,0,0,0.35),
+    inset 0 -2px 3px rgba(255,255,255,0.25);
 }
 
-/* ===== PANEL ===== */
-.panel{
-  max-height:0;
-  opacity:0;
-  transform:translateY(-12px);
-  transition:.8s cubic-bezier(.22,1,.36,1);
+  .turntable::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:5%;
+background: linear-gradient(
+  160deg,
+  rgba(255,255,255,0.4),
+  transparent 35%,
+  transparent 65%,
+  rgba(255,255,255,0.1)
+);
+
   pointer-events:none;
 }
-.player.open .panel{
-  max-height:900px;
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
+
+.record {
+  position: absolute;
+  left: 35px;
+  top: 35px;
+  width: 200px;
+  height: 200px;
+  background: black;
+  border-radius: 50%;
+   animation: spin 1s infinite linear;
+  animation-play-state: paused;
 }
 
-.input{display:flex;gap:8px;margin-bottom:14px}
-input{
-  flex:1;padding:10px 12px;
-  border-radius:16px;border:1px solid rgba(0,0,0,.15);
-}
-.input button{
-  border:none;
-  border-radius:14px;
-  padding:0 14px;
-  background:var(--accent);
-  color:#fff;
-  opacity:.85;
+@keyframes spin {
+  0% {
+    transform: none;
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.input button:hover{
-  opacity:1;
+.record::before {
+  content: '';
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: repeating-radial-gradient(black, black 5px, #1C1C1C 6px, #1C1C1C 7px);
+  border-radius: 50%;
 }
 
-.controls{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
-.controls button{
-  height:38px;
-  min-width:38px;
-  border:none;
-  border-radius:999px;
-  background:#444;
-  color:#fff;
+.overlay {
+  content: '';
+  left: 35px;
+  top: 35px;
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(45deg, transparent, 40%, rgba(255,255,255,0.35), 60%, transparent);
+  border-radius: 50%;
 }
+
+.inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(white, white 50%, #F796A8 50%, #F796A8);
+  border-radius: 50%;
+}
+
+.inner::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: black;
+  border-radius: 50%;
+}
+
+.inner::after {
+  content: 'youmine.';
+  width: 55px;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 8px;
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+}
+
+.arm-holder {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: gray;
+  border-radius: 50%;
+  right: 20px;
+  top: 40px;
+}
+
+.arm-holder::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: #939393;
+  border-radius: 50%;
+}
+
+.arm {
+  position: absolute;
+  right: 13px;
+  width: 60px;
+  top: 10px;
+  height: 110px;
+  border: 10px solid #939393;
+  transform: skew(-20deg, -20deg);
+  transform-origin: top right;
+  border-left-color: transparent;
+  border-top-color: transparent;
+  border-radius: 0 0 30% 0;
+  animation: armTwitch 0.5s infinite;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes armTwitch {
+  0% {
+     transform: skew(-20deg, -20deg);
+  }
+  100% {
+    transform: skew(-20deg, -20deg) rotate(1deg);
+  }
+}
+
+.arm::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 30px;
+  background: gray;
+  transform: skew(20deg, 20deg) rotate(75deg);
+  top: 98px;
+  left: -10px;
+  border-radius: 20%;
+  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+}
+
+.dial {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 25px;
+  height: 25px;
+  background: #333642;
+  border-radius: 50%;
+}
+
+.dial::before {
+  content: '';
+  left: 50%;
+  transform: translateX(-50%);
+  top: 2px;
+  position: absolute;
+  width: 2px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+}
+
+  .player-ui{
+  width:310px;
+  margin:20px auto;
+  color:#eee;
+  font-family:sans-serif;
+}
+
 .now-playing{
-  text-align:center;
-  font-size:11px;
-  opacity:.45;
-  margin:6px 0 2px;
-  letter-spacing:.06em;
-  transition:opacity .25s ease;
+  font-size:13px;
+  margin-bottom:4px;
 }
 
-  /* ===== TAPE PROGRESS BAR ===== */
-.tape-progress{
-  position:relative;
-  height:4px;
-  margin:10px 24px 16px;
-  background:rgba(0,0,0,.15);
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.tape-bar{
-  height:100%;
-  width:0%;
-  background:linear-gradient(
-    90deg,
-    #ffd9a0,
-    #ffb566,
-    #ffd9a0
-  );
-  border-radius:999px;
-  box-shadow:
-    0 0 6px rgba(255,180,90,.7),
-    inset 0 0 2px rgba(255,255,255,.6);
-  transition:width .25s linear;
-}
-
-/* ===== STYLE PICKER ===== */
-.style-picker{
-  margin-top:20px;
-  padding-bottom:8px;
-}
-
-.style-title{
-  font-size:12px;
-  opacity:.5;
-  margin-bottom:8px;
-}
-
-.style-list{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-}
-  .style-list{
-  padding:6px 0;
-}
-  .style-list{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-
-  max-height:0;
-  opacity:0;
-  overflow:visible;
-  transform:translateY(-6px);
-  transition:.35s ease;
-}
-
-.style-picker.open .style-list{
-  max-height:80px;
-  opacity:1;
-  transform:translateY(0);
-}
-  
-.style-btn{
-  width:32px;
-  height:32px;
-  padding:0;
-  border:none;
-  border-radius:50%;
-  background:#ddd;
-  overflow:hidden;
-  cursor:pointer;
-  transition:transform .25s, box-shadow .25s;
-}
-
-.style-btn img{
+.progress-wrap input{
   width:100%;
-  height:100%;
-  object-fit:cover;
 }
 
-.style-btn:hover{
-  transform:scale(1.12);
-}
-
-.style-btn.active{
-  box-shadow:0 0 0 2px var(--accent);
-}
-
-/* PLAYLIST */
-.folder{
-  background:#f2f2f2;
-  border-radius:18px;
-  padding:10px;margin-bottom:12px;
-}
-.song.active{
-  font-weight:500;
-  opacity:.95;
-  background:linear-gradient(
-    90deg,
-    rgba(255,180,90,.18),
-    transparent
-  );
-  border-radius:10px;
-}
-
-.song.active::before{
-  content:"●";
-  margin-right:6px;
-  font-size:8px;
-  opacity:.6;
-}
-.folder-header{
-  display:flex;justify-content:space-between;
-  font-size:13px;cursor:pointer;
-}
-.folder-actions span{margin-left:8px;opacity:.6;cursor:pointer}
-.songs{
-  display:none;
-  margin-top:6px;
-
-  max-height:160px;        /* tinggi area lagu */
-  overflow-y:auto;         /* aktifkan scroll */
-  overscroll-behavior:contain;
-  padding-right:4px;       /* ruang scrollbar */
-}
-
-.folder.open .songs{
-  display:block;
-}
-.song:hover{background:rgba(0,0,0,.05)}
-.song span.x{opacity:.4;cursor:pointer}
-
-/* scrollbar aesthetic */
-.songs::-webkit-scrollbar{
-  width:6px;
-}
-.songs::-webkit-scrollbar-track{
-  background:transparent;
-}
-.songs::-webkit-scrollbar-thumb{
-  background:rgba(0,0,0,.25);
-  border-radius:999px;
-}
-
-.credit{
-  position:fixed;bottom:14px;left:16px;
-  font-size:12px;opacity:.55;
-}
-
-  /* ===== MINI LIBRARY ===== */
-.library{
-  margin-top:16px;
-  border-radius:18px;
-  overflow:hidden;
-  background:rgba(255,255,255,.55);
-  backdrop-filter:blur(10px);
-  box-shadow:0 20px 50px rgba(0,0,0,.25);
-}
-
-.library-handle{
+.controls{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  padding:10px 14px;
-  font-size:12px;
-  letter-spacing:.08em;
+  margin:8px 0;
+}
+
+.controls button{
+  background:#222;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
   cursor:pointer;
-  background:linear-gradient(180deg,#fafafa,#e6e6e6);
 }
 
-.library-handle .arrow{
-  transition:transform .35s ease;
+.controls button:hover{
+  background:#444;
 }
 
-.library.open .arrow{
-  transform:rotate(180deg);
-}
-
-.library-content{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .6s cubic-bezier(.22,1,.36,1);
-}
-
-.library.open .library-content{
-  max-height:420px;
-}
-
-  .library-handle{
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
-}
-
-.library-handle:hover{
-  background:linear-gradient(180deg,#fff,#ececec);
-}
-
-  .library{
-  transition:transform .35s ease, opacity .35s ease;
-}
-.library:not(.open){
-  transform:translateY(6px);
-  opacity:.95;
-}
-
-.add-playlist{
-  text-align:center;
-  padding:10px;
+.playlist{
+  list-style:none;
+  padding:0;
+  margin:0;
   font-size:13px;
-  opacity:.6;
+}
+
+.playlist li{
+  padding:6px;
+  border-bottom:1px solid rgba(255,255,255,0.15);
   cursor:pointer;
 }
-.add-playlist:hover{opacity:.9}
+
+.playlist li.active{
+  background:rgba(255,255,255,0.12);
+}
+
+  /* ❤️ LOVE LETTER POPUP */
+.love-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.love-popup{
+  width:280px;
+  padding:24px;
+  background:linear-gradient(180deg,#fff6f8,#f3d9df);
+  border-radius:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.35);
+  text-align:center;
+  font-family:"Georgia",serif;
+  animation:popIn .5s cubic-bezier(.22,1,.36,1);
+}
+
+.love-popup{ 
+  pointer-events:auto; 
+}
+
+.love-popup h2{
+  margin:0 0 12px;
+  font-size:18px;
+  color:#8b3a4a;
+}
+
+.love-popup p{
+  margin:0;
+  font-size:16px;
+  color:#4a2a32;
+  letter-spacing:1px;
+}
+
+.love-close{
+  position:absolute;
+  top:14px;
+  right:18px;
+  font-size:18px;
+  cursor:pointer;
+  color:#8b3a4a;
+}
+
+@keyframes popIn{
+  from{
+    transform:scale(.7) translateY(20px);
+    opacity:0;
+  }
+  to{
+    transform:scale(1) translateY(0);
+    opacity:1;
+  }
+}
+
+      
+    /* ❤️ LOVE BUTTON */
+.love-btn{
+  position:absolute;
+  right:-18px;
+  top:50%;
+  transform:translateY(-50%);
+  width:28px;
+  height:28px;
+  background:#8b3a4a;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.4);
+  opacity:.6;
+  transition:.3s;
+animation: heartbeat 2.2s infinite;
+}
+
+@keyframes heartbeat{
+  0%,100%{transform:translateY(-50%) scale(1)}
+  50%{transform:translateY(-50%) scale(1.12)}
+}
+
+.love-btn:hover{
+  opacity:1;
+  transform:translateY(-50%) scale(1.1);
+}
+
+  /* ============================= */
+/* SIDE BY SIDE LAYOUT (WAJIB) */
+/* ============================= */
+
+.app-wrap{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:28px;
+  max-width:800px;
+  margin:80px auto;
+}
+
+/* panel kanan */
+.app-wrap .player-ui{
+  margin:0;
+  width:260px;
+  margin-top:155px; /* 🔴 INI YANG NGATUR TINGGI */
+}
 
 </style>
 </head>
 
 <body>
 
-<div class="player" id="playerWrap">
+  <div class="app-wrap">
 
-<div class="cassette" onclick="togglePanel()">
-  <span class="shine"></span>
-  <span class="screw tl"></span>
-  <span class="screw tr"></span>
-  <span class="screw bl"></span>
-  <span class="screw br"></span>
+  <!-- 💿 TURNTABLE -->
+  <div class="turntable">
+    <div class="record">
+      <div class="inner"></div>
+    </div>
+    <div class="overlay"></div>
+    <div class="arm-holder">
+      <div class="arm"></div>
+    </div>
+    <div class="dial"></div>
 
-  <!-- 🔹 CASSETTE STATUS BADGE -->
-<div class="cassette-status" id="cassetteStatus">●</div>
-<div class="tape-counter" id="tapeCounter">00:00</div>
+<div class="love-btn" onclick="openLove()">♥</div>
+  </div>
   
-    <div class="cassette-label">
-      <span>SIDE A</span>
-      <span>CD it I</span>
-      <span>29</span>
+    <div class="player-ui">
+
+    <div class="now-playing">
+      <marquee id="songTitle">Nothing playing</marquee>
     </div>
 
-    <div class="window">
-      <div class="reels">
-        <div class="reel" id="reelL"><span class="hub"></span></div>
-        <div class="reel" id="reelR"><span class="hub"></span></div>
-      </div>
+    <div class="progress-wrap">
+      <input type="range" id="progress" value="0">
     </div>
+
+    <div class="controls">
+      <button onclick="prevSong()">⏮</button>
+      <button onclick="togglePlay()" id="playBtn">▶</button>
+      <button onclick="nextSong()">⏭</button>
+      <button onclick="shuffleSong()">🔀</button>
+    </div>
+
+    <ul class="playlist" id="playlist"></ul>
+
+    <audio id="audio"></audio>
   </div>
-
-  <div class="panel">
-
-    <!-- 🔍 SEARCH BAR -->
-<div class="search-wrap" id="searchWrap">
-  <input
-    id="searchInput"
-    placeholder="Search in all tapes…"
-  >
-</div>
     
-    <div class="input">
-      <input id="ytInput" placeholder="Paste a memory…">
-      <button onclick="addSong()">＋</button>
-    </div>
+    </div> <!-- TUTUP .app-wrap -->
 
-<!-- 🎵 1️⃣ NOW PLAYING -->
-<div class="now-playing marquee" id="nowPlayingText">
-  <span>—</span>
-</div>
-
-<!-- 🎚️ 2️⃣ PROGRESS BAR -->
-<div class="tape-progress">
-  <div class="tape-bar" id="tapeBar"></div>
-</div>
-
-<!-- 🎛️ 3️⃣ MENU / CONTROLS -->
-<div class="controls">
-  <button class="icon-btn" onclick="toggleSearch()">
-    <img src="search.png">
-  </button>
-
-  <button class="icon-btn" onclick="prev()">
-    <img src="back.png">
-  </button>
-
-  <button class="icon-btn" id="playBtn" onclick="togglePlay()">
-    <img src="play.png">
-  </button>
-
-  <button class="icon-btn" onclick="next()">
-    <img src="next.png">
-  </button>
-
-  <button class="icon-btn" onclick="shuffle()">
-    <img src="shuffle.png">
-  </button>
-</div>
-
-  <div class="library" id="library">
-  <div class="library-handle" onclick="toggleLibrary()">
-    <span>Library</span>
-    <span class="arrow">▴</span>
-  </div>
-
-  <div class="library-content">
-    <div id="playlists"></div>
-    <div class="add-playlist" onclick="addPlaylist()">＋ Add Playlist</div>
-  </div>
-</div>
-    
-<div class="style-picker">
-<div class="style-title" onclick="toggleStylePicker()">
-  set your mood. ▾
-</div>
-
-  <div class="style-list">
-    <button class="style-btn" onclick="setStyle(0)">
-      <img src="scenery.gif">
-    </button>
-
-    <button class="style-btn" onclick="setStyle(1)">
-      <img src="time.gif">
-    </button>
-
-    <button class="style-btn" onclick="setStyle(2)">
-      <img src="download.gif">
-    </button>
-
-    <button class="style-btn" onclick="setStyle(3)">
-      <img src="vaporwave.gif">
-    </button>
+  <!-- ❤️ LOVE LETTER POPUP -->
+<div class="love-overlay" id="loveOverlay" onclick="closeLove()">
+  <div class="love-popup">
+    <div class="love-close" onclick="closeLove()">✕</div>
+    <h2>Love Letter</h2>
+    <p>HALOOOOOO</p>
   </div>
 </div>
 
-</div>
+  <!-- 🔧 SCRIPT -->
+  <script>
+  const songs = [
+    {title:"Love Song 1", src:"song1.mp3"},
+    {title:"Love Song 2", src:"song2.mp3"},
+    {title:"Love Song 3", src:"song3.mp3"},
+    {title:"Love Song 4", src:"song4.mp3"},
+    {title:"Love Song 5", src:"song5.mp3"},
+    {title:"Love Song 6", src:"song6.mp3"},
+  ]
 
-<div id="player"></div>
+  let index = 0
+  let isPlaying = false
+  const audio = document.getElementById("audio")
+  const title = document.getElementById("songTitle")
+  const progress = document.getElementById("progress")
+  const playBtn = document.getElementById("playBtn")
+  const playlist = document.getElementById("playlist")
 
-<script>
-let ytPlayer=null
-function onYouTubeIframeAPIReady(){
-  ytPlayer=new YT.Player("player",{
-    height:"0",width:"0",
-    playerVars:{autoplay:1,controls:0,rel:0,playsinline:1},
-    events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)next()}}
+  songs.forEach((s,i)=>{
+    const li = document.createElement("li")
+    li.textContent = s.title
+    li.onclick = ()=>loadSong(i,true)
+    playlist.appendChild(li)
   })
-}
 
-let data=[
-  {name:"My Playlist",songs:[],open:true}
-]
+function loadSong(i, auto){
+  index = i
+  audio.src = songs[i].src
+  title.textContent = songs[i].title
 
-async function loadPlaylist(){
-  const cloudData = await loadFromCloud()
-  if(cloudData){
-    data = cloudData
-    render()
-  }
-}
-  
-let current={p:0,s:0}
-let loadedId=null,isPlaying=false
+  [...playlist.children].forEach(li=>li.classList.remove("active"))
+  playlist.children[i].classList.add("active")
 
-const reelL=document.getElementById("reelL")
-const reelR=document.getElementById("reelR")
-const playBtn=document.getElementById("playBtn")
-const playlistsEl=document.getElementById("playlists")
-const tapeBar = document.getElementById("tapeBar")
-let progressTimer = null
-const cassette=document.querySelector(".cassette")
-const cassetteStatus = document.getElementById("cassetteStatus")
-const tapeCounter = document.getElementById("tapeCounter")
-const playerWrap=document.getElementById("playerWrap")
-const searchInput = document.getElementById("searchInput")
-searchInput.addEventListener("input", () => {
-  render()
-})
-const nowPlayingText = document.getElementById("nowPlayingText")
+  // RESET STATE
+  isPlaying = false
+  playBtn.textContent = "▶"
+  document.querySelector(".record").style.animationPlayState = "paused"
 
-function save(){
-  localStorage.setItem("cassettePlaylists",JSON.stringify(data))
-  saveToCloud(data)
-}
-
-function togglePanel(){
-  playerWrap.classList.toggle("open")
-  if(playerWrap.classList.contains("open")){
-    setTimeout(()=>playerWrap.classList.add("settled"),550)
-  }else{
-    playerWrap.classList.remove("settled")
-  }
-}
-
-function toggleSearch(){
-  const w = document.getElementById("searchWrap")
-  w.classList.toggle("open")
-
-  if(w.classList.contains("open")){
-    searchInput.value=""
-    setTimeout(()=>searchInput.focus(),150)
-    playerWrap.classList.add("searching")
-  }else{
-    searchInput.value=""
-    playerWrap.classList.remove("searching")
-    render()
-  }
-}
-
-document.addEventListener("keydown", e => {
-  if(e.key !== "Escape") return
-
-  const searchWrap = document.getElementById("searchWrap")
-  const library = document.getElementById("library")
-
-  // 1️⃣ Tutup search dulu (prioritas)
-  if(searchWrap?.classList.contains("open")){
-    searchWrap.classList.remove("open")
-    searchInput.value = ""
-    render()
-    return
-  }
-
-  // 2️⃣ Kalau search tidak buka, tutup library
-  if(library?.classList.contains("open")){
-    library.classList.remove("open")
-    return
-  }
-})
-
-function extractId(u){
-  if(u.includes("youtu.be/"))return u.split("youtu.be/")[1].split("?")[0]
-  return u.split("v=")[1]?.split("&")[0]
-}
-async function fetchTitle(url){
-  try{
-    const r=await fetch("https://www.youtube.com/oembed?url="+encodeURIComponent(url)+"&format=json")
-    const j=await r.json()
-    return j.title
-  }catch{return "Unknown Title"}
-}
-
-  function toggleLibrary(){
-  document
-    .getElementById("library")
-    .classList
-    .toggle("open")
-}
-
-function loadVideo(id){
-  ytPlayer.loadVideoById(id)
-  loadedId=id
-  isPlaying=true
-  cassette.classList.add("playing")
-  cassetteStatus.style.opacity = 1
-  cassetteStatus.textContent = "PLAY"
-  reelL.classList.add("spin")
-  reelR.classList.add("spin")
-  playBtn.innerHTML = '<img src="pause.png">'
-  startProgress()
-}
-function togglePlay(){
-  const song = data[current.p]?.songs[current.s]
-  if(!song) return
-
-  const id = extractId(song.url)
-
-  if(loadedId !== id){
-    loadVideo(id)
-    return
-  }
-
-  if(isPlaying){
-    ytPlayer.pauseVideo()
-    cassette.classList.remove("playing")
-    cassetteStatus.textContent = "STOP"
-    cassetteStatus.style.opacity = .4
-    reelL.classList.remove("spin")
-    reelR.classList.remove("spin")
-    playBtn.innerHTML = '<img src="play.png">'
-    playBtn.classList.remove("playing")
-    isPlaying = false
-    stopProgress()
-  }else{
-    ytPlayer.playVideo()
-    cassette.classList.add("playing")
-    cassetteStatus.style.opacity = 1
-    cassetteStatus.textContent = "PLAY"
-    reelL.classList.add("spin")
-    reelR.classList.add("spin")
-    playBtn.innerHTML = '<img src="pause.png">'
-    playBtn.classList.add("playing")
+  if(auto){
+    audio.play()
+    playBtn.textContent = "⏸"
+    document.querySelector(".record").style.animationPlayState = "running"
     isPlaying = true
-    startProgress()
   }
 }
 
-function playSong(p,s){
-  current={p,s}
-  loadedId=null
+function togglePlay(){
+  const record = document.querySelector(".record")
 
-  nowPlayingText.textContent = data[p].songs[s].title  // 🎵 INI
-
-  togglePlay()
-
-  document
-    .getElementById("library")
-    ?.classList.remove("open")
+  if(!isPlaying){
+    audio.play()
+    playBtn.textContent = "⏸"
+    record.style.animationPlayState = "running"
+    isPlaying = true
+  }else{
+    audio.pause()
+    playBtn.textContent = "▶"
+    record.style.animationPlayState = "paused"
+    isPlaying = false
+  }
 }
-function render(){
-  playlistsEl.innerHTML=""
 
-  const q = searchInput?.value.toLowerCase() || ""
-  const searching = q.length > 0
-
-  data.forEach((pl,pi)=>{
-    if(searching){
-  const hasMatch = pl.songs.some(s =>
-    s.title.toLowerCase().includes(q)
-  )
-  if(!hasMatch) return
-}
-    const box=document.createElement("div")
-box.className =
-  "folder" + ((pl.open || searching) ? " open" : "")
-    box.innerHTML=`
-<div class="folder-header" onclick="toggleFolder(${pi})">
-  <span>${pl.name}</span>
-<div class="folder-actions" onclick="event.stopPropagation()">
-  <span onclick="renamePlaylist(${pi})">
-    <img src="edit.png" width="16">
-  </span>
-  <span onclick="deletePlaylist(${pi})">✕</span>
-</div>
-      </div>
-      <div class="songs"></div>
-    `
-
-    const list=box.querySelector(".songs")
-
-pl.songs.forEach((s,si)=>{
-  if(!s.title.toLowerCase().includes(q)) return
-
-  const isActive =
-    current.p === pi && current.s === si
-
-  const row = document.createElement("div")
-  row.className = "song" + (isActive ? " active" : "")
-  row.innerHTML = `
-    <span onclick="playSong(${pi},${si})">${s.title}</span>
-    <span class="x" onclick="deleteSong(${pi},${si})">✕</span>
-  `
-
-  list.appendChild(row)
+    audio.addEventListener("play", () => {
+  isPlaying = true
+  playBtn.textContent = "⏸"
+  document.querySelector(".record").style.animationPlayState = "running"
 })
 
-  playlistsEl.appendChild(box)
+audio.addEventListener("pause", () => {
+  isPlaying = false
+  playBtn.textContent = "▶"
+  document.querySelector(".record").style.animationPlayState = "paused"
 })
 
-  enableDrag()
-}
-render()
+audio.addEventListener("ended", () => {
+  isPlaying = false
+  playBtn.textContent = "▶"
+  document.querySelector(".record").style.animationPlayState = "paused"
+})
 
-function toggleFolder(i){data[i].open=!data[i].open;save();render()}
-async function addSong(){
-  const u = ytInput.value.trim()
-  if(!u) return
+loadSong(0, false)
 
-  cassette.classList.add("inserting")
+function openLove(){
+  const overlay = document.getElementById("loveOverlay")
+  overlay.style.display = "flex"
 
-  const title = await fetchTitle(u)
-  data[current.p].songs.push({url:u,title})
-  ytInput.value=""
-
-  save()
-  render()
-
-  setTimeout(()=>{
-    cassette.classList.remove("inserting")
-  },800)
-}
-function addPlaylist(){data.push({name:"New Playlist",songs:[],open:true});save();render()}
-function renamePlaylist(i){const n=prompt("Rename playlist",data[i].name);if(n){data[i].name=n;save();render()}}
-function deletePlaylist(i){if(!confirm("Delete playlist?"))return;data.splice(i,1);current={p:0,s:0};save();render()}
-function deleteSong(p,s){data[p].songs.splice(s,1);save();render()}
-function updateNowPlaying(){
-  const song = data[current.p]?.songs[current.s]
-  nowPlayingText.textContent = song ? song.title : "—"
-}
-function next(){
-  if(!data[current.p].songs.length)return
-  tapeBar.style.width="0%"
-  current.s=(current.s+1)%data[current.p].songs.length
-  loadedId=null
-  updateNowPlaying()   // 🎵 TAMBAH INI
-  togglePlay()
-}
-function prev(){
-  if(!data[current.p].songs.length)return
-  tapeBar.style.width="0%"
-  current.s=Math.max(0,current.s-1)
-  loadedId=null
-  updateNowPlaying()   // 🎵 TAMBAH INI
-  togglePlay()
-}
-function shuffle(){
-  if(!data[current.p].songs.length)return
-  tapeBar.style.width="0%"
-  current.s=Math.floor(Math.random()*data[current.p].songs.length)
-  loadedId=null
-  updateNowPlaying()   // 🎵 TAMBAH INI
-  togglePlay()
+  audio.pause()
+  document.querySelector(".record").style.animationPlayState = "paused"
+  playBtn.textContent = "▶"
 }
 
-/* ===== CASSETTE STYLE PICKER ===== */
-const styles = [
-  "url('scenery.gif')",
-  "url('time.gif')",
-  "url('download.gif')",
-  "url('vaporwave.gif')"
-]
-
-let currentStyle = Number(
-  localStorage.getItem("cassetteStyle") || 0
-)
-
-function applyStyle(){
-  document
-    .querySelector(".window")
-    .style
-    .setProperty("--cassette-bg", styles[currentStyle])
-
-  document
-    .querySelectorAll(".style-btn")
-    .forEach((b,i)=>{
-      b.classList.toggle("active", i===currentStyle)
-    })
+function closeLove(){
+  document.getElementById("loveOverlay").style.display = "none"
 }
-
-function setStyle(i){
-  currentStyle = i
-  localStorage.setItem("cassetteStyle", i)
-  applyStyle()
-}
-  function toggleStylePicker(){
-  document
-    .querySelector(".style-picker")
-    .classList
-    .toggle("open")
-}
-
-applyStyle()
-
-  /* ===== TAPE PROGRESS LOGIC ===== */
-function startProgress(){
-  stopProgress()
-  progressTimer = setInterval(()=>{
-    if(!ytPlayer || !isPlaying) return
-
-    const t = Date.now()
-    const stretchL = 0.85 + Math.sin(t/480) * 0.05
-    const stretchR = 0.85 + Math.sin(t/520) * 0.05
-
-reelL.style.transform = `rotate(${t/65}deg)`
-reelR.style.transform = `rotate(${t/72}deg)`
-
-    const dur = ytPlayer.getDuration()
-    const cur = ytPlayer.getCurrentTime()
-    if(!dur) return
-
-    // ⏱️ TAPE COUNTER — TARUH DI SINI
-    const m = Math.floor(cur / 60)
-    const s = Math.floor(cur % 60)
-    tapeCounter.textContent =
-      `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
-
-    tapeBar.style.width = (cur / dur * 100) + "%"
-  }, 500)
-}
-
-function stopProgress(){
-  clearInterval(progressTimer)
-  progressTimer = null
-
-  reelL.style.transform = ""
-  reelR.style.transform = ""
-
-  tapeCounter.textContent = "00:00"
-}
-
-/* ===== DRAG LOGIC ===== */
-let dragSong=null,dragPlaylist=null
-function enableDrag(){
-  document.querySelectorAll(".folder").forEach((f,pi)=>{
-    f.draggable=true
-    f.ondragstart=()=>dragPlaylist=pi
-    f.ondragover=e=>e.preventDefault()
-    f.ondrop=()=>{
-      if(dragPlaylist===null||dragPlaylist===pi)return
-      const m=data.splice(dragPlaylist,1)[0]
-      data.splice(pi,0,m)
-      dragPlaylist=null;save();render()
-    }
-    f.querySelectorAll(".song").forEach((s,si)=>{
-      s.draggable=true
-      s.ondragstart=()=>dragSong={p:pi,s:si}
-      s.ondragover=e=>e.preventDefault()
-      s.ondrop=()=>{
-        if(!dragSong)return
-        const m=data[dragSong.p].songs.splice(dragSong.s,1)[0]
-        data[pi].songs.splice(si,0,m)
-        dragSong=null;save();render()
-      }
-    })
-  })
-}
-render()
-loadPlaylist()
-  
-</script>
+    
+  </script>
 
 </body>
 </html>
+
 
 
 
