@@ -690,6 +690,83 @@ input{
 }
 .add-playlist:hover{opacity:.9}
 
+/* ❤️ LOVE BUTTON */
+.love-btn{
+  position:absolute;
+  right:-18px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:rgba(255,255,255,.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  animation:heartBeat 1.8s ease-in-out infinite;
+  z-index:6;
+}
+
+.love-btn img{
+  width:18px;
+  height:18px;
+}
+
+@keyframes heartBeat{
+  0%,100%{transform:translateY(-50%) scale(1)}
+  50%{transform:translateY(-50%) scale(1.12)}
+}
+
+/* 💌 LOVE LETTER OVERLAY */
+.love-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.4s ease;
+  z-index:99;
+}
+
+.love-overlay.open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.love-letter{
+  width:300px;
+  background:linear-gradient(180deg,#fff,#f3ece6);
+  border-radius:24px;
+  padding:22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.35);
+  transform:translateY(30px) scale(.96);
+  transition:.45s cubic-bezier(.22,1,.36,1);
+  text-align:center;
+}
+
+.love-overlay.open .love-letter{
+  transform:translateY(0) scale(1);
+}
+
+.love-letter h3{
+  margin:0 0 12px;
+  font-size:14px;
+  letter-spacing:.08em;
+  opacity:.6;
+}
+
+.love-letter p{
+  font-size:13px;
+  line-height:1.6;
+  opacity:.85;
+}
+
 </style>
 </head>
 
@@ -698,6 +775,12 @@ input{
 <div class="player" id="playerWrap">
 
 <div class="cassette" onclick="togglePanel()">
+
+  <!-- ❤️ LOVE BUTTON -->
+  <div class="love-btn" onclick="event.stopPropagation();toggleLove()">
+    <img src="love.png">
+  </div>
+
   <span class="shine"></span>
   <span class="screw tl"></span>
   <span class="screw tr"></span>
@@ -1189,8 +1272,27 @@ function enableDrag(){
 }
 render()
 loadPlaylist()
+
+function toggleLove(){
+  document
+    .getElementById("loveOverlay")
+    .classList
+    .toggle("open")
+}
   
 </script>
+
+<!-- 💌 LOVE LETTER -->
+<div class="love-overlay" id="loveOverlay" onclick="toggleLove()">
+  <div class="love-letter" onclick="event.stopPropagation()">
+    <h3>LOVE LETTER</h3>
+    <p>
+      this space is yours.<br>
+      later you can fill it with words,<br>
+      memories, or promises.
+    </p>
+  </div>
+</div>
 
 </body>
 </html>
